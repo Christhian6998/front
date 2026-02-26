@@ -1,0 +1,113 @@
+<div class="container mt-5 mb-5">
+  
+    <div *ngIf="!intentoSeleccionado()" class="animate__animated animate__fadeIn">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <h2 class="fw-bold text-gradient">Mis Resultados (My results)</h2>
+            <span class="badge rounded-pill bg-light text-primary border border-primary px-3 py-2">
+            {{intentos().length}} Tests realizados
+            </span>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4" *ngFor="let item of intentos()">
+            <div class="card h-100 border-0 custom-card" (click)="verDetalle(item)">
+                <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="icon-circle shadow-sm">
+                    <i class="bi bi-rocket-takeoff-fill"></i>
+                    </div>
+                    <span class="attempt-number">#{{item.numeroIntento}}</span>
+                </div>
+                
+                <h5 class="fw-bold text-dark mb-1">Test Vocacional</h5>
+                <p class="text-muted small d-flex align-items-center mb-3">
+                    <i class="bi bi-calendar3 me-2"></i>
+                    {{item.fecha | date: 'dd/MM/yyyy HH:mm'}}
+                </p>
+
+                <div class="profile-preview p-2 rounded-3 bg-light border-start border-primary border-4">
+                    <small class="text-uppercase fw-bold text-primary d-block" style="font-size: 0.7rem;">Perfil detectado:</small>
+                    <span class="text-dark fw-semibold small">{{item.recomendacion?.perfil || 'Procesando...'}}</span>
+                </div>
+
+                <div class="mt-4 d-flex align-items-center text-primary fw-bold small view-more">
+                    Ver mi reporte completo <i class="bi bi-arrow-right ms-2"></i>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+  <div *ngIf="intentoSeleccionado()" class="animate__animated animate__slideInRight">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <button class="btn btn-outline-secondary rounded-pill px-4" (click)="volver()">
+        <i class="bi bi-arrow-left me-2"></i> Volver
+        </button>
+        
+        <button class="btn btn-danger rounded-pill px-4 shadow-sm" (click)="descargarPDF()">
+        <i class="bi bi-file-earmark-pdf-fill me-2"></i> Descargar PDF
+        </button>
+    </div>
+
+    <div id="reporte-profesional" class="report-container p-4 p-md-5 shadow-lg bg-white rounded-4">
+      <div class="text-center mb-5 border-bottom pb-4">
+        <h1 class="display-6 fw-bold text-primary">Reporte de Afinidad Profesional</h1>
+        <p class="text-muted">Generado el: {{recomendacionInfo()?.fechaRegistrada | date: 'dd/MM/yyyy HH:mm'}}</p>
+        <div class="profile-box mt-3 p-3 bg-light rounded-3">
+          <h5 class="fw-bold m-0 text-dark">Tu Perfil: <span class="text-primary">{{recomendacionInfo()?.perfil}}</span></h5>
+        </div>
+      </div>
+
+      
+      <div class="results-list">
+        <div class="career-item mb-5 animate__animated animate__fadeInUp" *ngFor="let item of detallesCarreras(); let i = index">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <h3 class="fw-bold text-dark">{{item.carrera.nombre}}</h3>
+            </div>
+            <div class="text-end">
+              <div class="affinity-circle">
+                <span class="fs-4 fw-bold">Afinidad: {{item.afinidad | number:'1.2-2'}}%</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="fs-6 text-secondary mb-4">{{item.carrera.descripcion}}</p>
+
+          <div class="row g-3">
+            <div class="col-12">
+                <h6 class="fw-bold border-bottom pb-2 mb-3">Instituciones recomendadas:</h6>
+                <div class="list-group list-group-flush">
+                <div *ngFor="let ofe of item.ofertasFiltradas" class="list-group-item px-0 border-0 mb-3">
+                    <div class="d-flex align-items-start">
+                    <i class="bi bi-bank2 text-primary me-2 mt-1"></i>
+                    <div>
+                        <p class="mb-0 text-secondary"><strong class="text-dark fs-5">{{ofe.institucion.nombre}} </strong> Pensión S/{{ofe.costoPension}} aproximadamente, la carrera dura {{ofe.duracion}} años y dispone de la(s) modalidad(es) {{ofe.modalidad}}.</p>
+                    </div>
+                    </div>
+                </div>
+                
+                <div *ngIf="item.ofertasFiltradas.length === 0" class="text-muted small">
+                    No hay ofertas disponibles actualmente para esta carrera.
+                </div>
+                </div>
+            </div>
+          </div>
+          <hr class="mt-5 opacity-25">
+        </div>
+      </div>
+
+      <footer class="mt-5 p-4 bg-light rounded-4 text-center">
+        <p class="text-muted small">
+          <strong>Aviso:</strong> Estos resultados son en base a respuestas psicológicas, pero la decisión final es totalmente personal. 
+          Te recomendamos seguir explorando sedes cercanas y comparando mallas curriculares para tener mejor claridad.
+        </p>
+      </footer>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="text-center py-5">
+    <div class="spinner-grow text-primary" role="status"></div>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+<div class="chat-container">
+  <button class="btn btn-primary rounded-circle shadow-lg btn-chat-float" (click)="toggleChat()">
+    <i class="bi bi-chat-dots-fill"></i>
+  </button>
+
+  <div class="card chat-window shadow-lg" *ngIf="isOpen">
+    <div class="card-header bg-gradient d-flex justify-content-between align-items-center">
+        <span class="fw-bold">🚀 Orientador Vocacional</span>
+        <button
+          class="btn btn-sm btn-outline me-2"
+          (click)="newChat()"
+          title="Nueva conversación">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
+        <button class="btn btn-sm btn-close-white shadow-none" (click)="toggleChat()" aria-label="Close">
+            <i class="bi bi-x-lg" style="font-size: 1.2rem;"></i>
+        </button>
+    </div>
+    
+    <div class="card-body chat-messages" #scrollMe [scrollTop]="scrollMe.scrollHeight">
+      <div *ngFor="let msg of chatState.messages()" [ngClass]="msg.sender === 'user' ? 'text-end' : 'text-start'" class="mb-3">
+        <div [ngClass]="msg.sender === 'user' ? 'bg-primary text-white' : 'bg-light text-dark'" 
+             class="d-inline-block p-3 rounded-3 shadow-sm max-width-80">
+          {{ msg.text }}
+        </div>
+      </div>
+      <div *ngIf="isLoading" class="text-start mb-3">
+        <div class="bg-light p-3 rounded-3 d-inline-block shadow-sm">
+          <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer bg-white border-top-0">
+      <div class="input-group">
+        <input type="text" class="form-control rounded-pill me-2" 
+               placeholder="Escribe tu duda aquí..." 
+               [(ngModel)]="userInput" (keyup.enter)="send()">
+        <button class="btn btn-primary rounded-circle" (click)="send()">
+          <i class="bi bi-send-fill"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

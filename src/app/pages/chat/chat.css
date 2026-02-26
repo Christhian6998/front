@@ -1,0 +1,102 @@
+/* Contenedor general */
+.chat-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Burbuja flotante */
+.btn-chat-float {
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+}
+
+/* Ventana de chat */
+.chat-window {
+  width: 350px;
+  height: 500px;
+  border-radius: 20px !important;
+  overflow: hidden;
+  border: none;
+  margin-bottom: 70px;
+}
+
+.bg-gradient {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+}
+
+.chat-messages {
+  height: 350px;
+  overflow-y: auto;
+  background-color: #f8f9fa;
+}
+
+.max-width-80 {
+  max-width: 85%;
+  word-wrap: break-word;
+}
+
+/* Animación de carga */
+.dot-typing {
+  position: relative;
+  left: -9999px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #2575fc;
+  color: #2575fc;
+  box-shadow: 9984px 0 0 0 #2575fc, 9999px 0 0 0 #2575fc, 10014px 0 0 0 #2575fc;
+  animation: dotTyping 1.5s infinite linear;
+}
+
+@keyframes dotTyping {
+  0% { box-shadow: 9984px 0 0 0 #2575fc, 9999px 0 0 0 #2575fc, 10014px 0 0 0 #2575fc; }
+  33% { box-shadow: 9984px -10px 0 0 #2575fc, 9999px 0 0 0 #2575fc, 10014px 0 0 0 #2575fc; }
+  66% { box-shadow: 9984px 0 0 0 #2575fc, 9999px -10px 0 0 #2575fc, 10014px 0 0 0 #2575fc; }
+  100% { box-shadow: 9984px 0 0 0 #2575fc, 9999px 0 0 0 #2575fc, 10014px -10px 0 0 #2575fc; }
+}
+
+/*boton cerrar*/
+.btn-close-white {
+  background: transparent;
+  border: none;
+  transition: transform 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-close-white:hover {
+  transform: scale(1.2);
+  opacity: 0.8;
+}
+
+.bi-x-lg {
+  -webkit-text-stroke: 1px;
+}
+
+/*animacion escribiendo*/
+.typing-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.typing-dots span {
+  width: 8px;
+  height: 8px;
+  background-color: #312e81; /* Color azul oscuro como tu marca */
+  border-radius: 50%;
+  display: inline-block;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+.typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1.0); }
+}

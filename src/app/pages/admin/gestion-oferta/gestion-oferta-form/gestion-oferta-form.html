@@ -1,0 +1,191 @@
+<div class="modal-overlay">
+  <div class="modal-contenido">
+    <div class="container">
+      <div class="card shadow-sm p-4">
+        
+        <h4 class="text-primary mb-3">
+          {{ modo === 'create' ? 'Registrar Oferta Académica' : 
+             modo === 'estado' ? 'Gestión de Estados' : 
+             modo === 'delete' ? 'Eliminar Registro (Permanente)' : 'Editar Oferta' }}
+        </h4>
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <h5>Institución</h5>
+          <div class="d-flex gap-2">
+            <button *ngIf="esCambioEstado()" (click)="toggleEstadoInstitucion()" [ngClass]="institucion.estado ? 'btn btn-danger btn-sm' : 'btn btn-success btn-sm'">
+              {{ institucion.estado ? 'Desactivar Institución' : 'Activar Institución' }}
+            </button>
+            <button *ngIf="esEliminar()" (click)="eliminarFisico()" class="btn btn-danger btn-sm">
+              Eliminar Institución y Todo lo asociado
+            </button>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6 position-relative">
+            <label class="form-label">Nombre</label>
+            <input class="form-control" [(ngModel)]="institucion.nombre" (input)="buscarInstitucion()" [readonly]="esSoloLectura()">
+            <div class="list-group position-absolute w-100 shadow" *ngIf="mostrarSugerenciasInst">
+              <button class="list-group-item list-group-item-action" *ngFor="let inst of institucionesFiltradas" (click)="seleccionarInstitucion(inst)">
+                {{inst.nombre}}
+              </button>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Tipo</label>
+            <select class="form-select" [(ngModel)]="institucion.tipo" [disabled]="esSoloLectura()">
+              <option value="UNIVERSIDAD">Universidad</option>
+              <option value="INSTITUTO">Instituto</option>
+            </select>
+          </div>
+        </div>
+
+        <hr>
+        <div class="d-flex justify-content-between align-items-center">
+          <h5>Sedes</h5>
+        </div>
+
+        <div *ngFor="let sede of sedes; let i=index" class="border rounded p-3 mb-3" [style.opacity]="sede.estado ? '1' : '0.6'">
+          <div class="row g-2">
+            <div class="col-md-3"><input class="form-control" placeholder="Nombre" [(ngModel)]="sede.nombre" [readonly]="esSoloLectura()"></div>
+            <div class="col-md-5"><input class="form-control" placeholder="Dirección" [(ngModel)]="sede.direccion" [readonly]="esSoloLectura()"></div>
+            <div class="col-md-2"><input class="form-control" placeholder="Latitud" [(ngModel)]="sede.latitud" [readonly]="esSoloLectura()"></div>
+            <div class="col-md-2"><input class="form-control" placeholder="Longitud" [(ngModel)]="sede.longitud" [readonly]="esSoloLectura()"></div>
+            
+            <div class="col-12 text-end mt-2">
+              <button *ngIf="esCambioEstado()" (click)="toggleEstadoSede(i)" [ngClass]="sede.estado ? 'btn btn-outline-danger btn-sm' : 'btn btn-outline-success btn-sm'">
+                {{ sede.estado ? 'Desactivar Sede' : 'Activar Sede' }}
+              </button>
+              <button *ngIf="esEliminar()" (click)="eliminarSedeUnica(i)" class="btn btn-outline-danger btn-sm">
+                Eliminar Sede
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <h5>Agregar nueva sede</h5>
+          <button class="btn btn-outline-primary btn-sm" (click)="agregarSede()" *ngIf="!esSoloLectura()">
+            + Agregar
+          </button>
+        </div>
+
+        <hr>
+        <div class="d-flex justify-content-between align-items-center">
+          <h5>Carreras</h5>
+        </div>
+
+        <div *ngFor="let car of carreras; let i=index" class="border rounded p-3 mb-3" [style.opacity]="car.estado ? '1' : '0.6'">
+          <div class="row g-2">
+            <div class="col-md-4 position-relative">
+              <input class="form-control" placeholder="Nombre carrera" [(ngModel)]="car.nombre" (input)="buscarCarrera(i)" [readonly]="esSoloLectura()">
+              <div class="list-group position-absolute w-100 shadow-lg" style="z-index: 1000;" *ngIf="indiceCarreraBuscando === i && carrerasFiltradas.length > 0">
+                <button class="list-group-item list-group-item-action" *ngFor="let sugerencia of carrerasFiltradas" (click)="seleccionarCarrera(sugerencia, i)">
+                  {{ sugerencia.nombre }} <small class="text-muted">({{ sugerencia.area }})</small>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-4">
+                <input class="form-control" placeholder="Área" [(ngModel)]="car.area" [readonly]="esSoloLectura()" (input)="buscarArea(i)">
+                <div class="list-group position-absolute w-100 shadow-lg" style="z-index: 1000;" *ngIf="indiceAreaBuscando === i && areasFiltradas.length > 0">
+                        <button type="button" class="list-group-item list-group-item-action" *ngFor="let area of areasFiltradas" (click)="seleccionarArea(area, i)">
+                        {{ area }}
+                        </button>
+                </div>
+            </div>
+            <div class="col-md-4">
+              <select class="form-select" [(ngModel)]="car.duracion" [disabled]="esSoloLectura()">
+                <option [ngValue]="null" disabled selected>Duración (Años)</option>
+                <option *ngFor="let anio of [1,2,3,4,5,6,7]" [ngValue]="anio">{{ anio }} años</option>
+              </select>
+            </div>
+
+            <div class="col-12 d-flex gap-2 mb-2">
+              <ng-container *ngIf="esCambioEstado()">
+                <button (click)="toggleEstadoCarrera(i)" [ngClass]="car.carreraEstado ? 'btn btn-danger btn-sm' : 'btn btn-success btn-sm'">
+                  {{ car.carreraEstado ? 'Desactivar Carrera (Global)' : 'Activar Carrera (Global)' }}
+                </button>
+                <button (click)="toggleEstadoOferta(i)" [ngClass]="car.estado ? 'btn btn-outline-danger btn-sm' : 'btn btn-outline-success btn-sm'">
+                  {{ car.estado ? 'Desactivar Relación Oferta' : 'Activar Relación Oferta' }}
+                </button>
+              </ng-container>
+
+              <ng-container *ngIf="esEliminar()">
+                <button (click)="eliminarCarreraGlobal(i)" class="btn btn-danger btn-sm">
+                  Eliminar Carrera (Global)
+                </button>
+                <button (click)="eliminarRelacionOferta(i)" class="btn btn-outline-danger btn-sm">
+                  Eliminar Solo Relación
+                </button>
+              </ng-container>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label small">Matrícula</label>
+              <input type="number" class="form-control" [(ngModel)]="car.costoMatricula" [readonly]="esSoloLectura()">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small">Pensión</label>
+              <input type="number" class="form-control" [(ngModel)]="car.costoPension" [readonly]="esSoloLectura()">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label d-block small mb-2">Modalidades</label>
+              <div class="d-flex gap-3 flex-wrap border rounded p-2 bg-white">
+                <div *ngFor="let opt of opcionesModalidad" class="form-check">
+                  <input class="form-check-input" type="checkbox" [id]="'mod' + i + opt" [checked]="car.modalidadesElegidas?.includes(opt)" (change)="toggleModalidad(car, opt)" [disabled]="esSoloLectura()">
+                  <label class="form-check-label" [for]="'mod' + i + opt">{{ opt }}</label>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <textarea class="form-control" placeholder="Descripción" [(ngModel)]="car.descripcion" [readonly]="esSoloLectura()"></textarea>
+            </div>
+            <div class="col-md-12 mt-3 p-3 bg-light border rounded">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label small fw-bold mb-0">Criterios de Selección (Obligatorio al menos 1)</label>
+                <button class="btn btn-sm btn-outline-primary" (click)="agregarCriterio(car)" *ngIf="!esSoloLectura()">
+                  <i class="bi bi-plus-circle"></i> Añadir Criterio
+                </button>
+              </div>
+              
+              <div class="row g-2">
+                <div *ngFor="let crit of car.criteriosElegidos; let j = index" class="col-md-3 col-sm-6">
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" style="max-width: 80px;" placeholder="Peso" [(ngModel)]="crit.peso" [disabled]="esSoloLectura()">
+                    <select class="form-select" [(ngModel)]="crit.idCriterio" [disabled]="esSoloLectura()">
+                      <option [ngValue]="null" disabled selected>Seleccionar...</option>
+                      <option *ngFor="let c of getCriteriosDisponibles(car, crit.idCriterio)" [ngValue]="c.idCriterio">
+                        {{ c.nombre }}
+                      </option>
+                    </select>
+
+                    <button class="btn btn-outline-danger" (click)="quitarCriterio(car, j)" *ngIf="modo !== 'estado'" title="Eliminar">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+          <h5>Añadir nueva carrera</h5>
+          <button class="btn btn-outline-success btn-sm" (click)="agregarCarrera()" *ngIf="!esSoloLectura()">
+            + Agregar
+          </button>
+        </div>
+
+        <div class="text-end mt-4">
+          <button class="btn btn-secondary me-2" (click)="cancelar()">
+            {{ esSoloLectura() ? 'Cerrar' : 'Cancelar' }}
+          </button>
+          <button class="btn btn-primary" (click)="guardar()" *ngIf="!esSoloLectura()">
+            Guardar
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

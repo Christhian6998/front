@@ -1,0 +1,85 @@
+<div class="container mt-5">
+  <div *ngIf="faseActual === 0" class="card shadow-lg border-0 rounded-4 animate__animated animate__fadeIn">
+    <div class="card-body p-5 text-center">
+      <h2 class="display-5 fw-bold text-primary mb-4">Test de Afinidad</h2>
+      <p class="lead text-muted">Descubre tu camino ideal basado en tu perfil psicológico. <br>
+        <span class="badge bg-info text-dark">Tip: Sé lo más honesto posible.</span>
+      </p>
+      
+      <div class="mt-5 mb-4">
+        <h5 class="mb-3">¿Ya tienes una carrera en mente?</h5>
+        <div class="btn-group w-100" role="group">
+          <input type="radio" class="btn-check" name="sabe" id="siSabe" [value]="true" [(ngModel)]="sabeCarrera">
+          <label class="btn btn-outline-primary py-3" for="siSabe">¡Sí, ya sé!</label>
+
+          <input type="radio" class="btn-check" name="sabe" id="noSabe" [value]="false" [(ngModel)]="sabeCarrera">
+          <label class="btn btn-outline-primary py-3" for="noSabe">Aún no estoy seguro</label>
+        </div>
+      </div>
+
+      <div *ngIf="sabeCarrera" class="mt-4 p-4 bg-light rounded-3 animate__animated animate__slideInDown">
+        <p class="fw-bold">Elige hasta 3 opciones en orden de prioridad:</p>
+        <select class="form-select mb-3 shadow-sm" [(ngModel)]="carrera1" (change)="forceUpdate()">
+          <option value="0">1ra opción (Tu favorita)</option>
+          <option *ngFor="let c of getFiltradas(carrera1)" [value]="c.idCarrera">{{c.nombre}}</option>
+        </select>
+        <select class="form-select mb-3 shadow-sm" [(ngModel)]="carrera2" *ngIf="carrera1 > 0" (change)="forceUpdate()">
+          <option value="0">2da opción</option>
+          <option *ngFor="let c of getFiltradas(carrera2)" [value]="c.idCarrera">{{c.nombre}}</option>
+        </select>
+        <select class="form-select mb-3 shadow-sm" [(ngModel)]="carrera3" *ngIf="carrera2 > 0" (change)="forceUpdate()">
+          <option value="0">3ra opción</option>
+          <option *ngFor="let c of getFiltradas(carrera3)" [value]="c.idCarrera">{{c.nombre}}</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary btn-lg px-5 py-3 mt-4 rounded-pill shadow" 
+              [disabled]="sabeCarrera === null" (click)="iniciarTest()">
+        Comenzar el viaje
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="faseActual > 0 && faseActual <= 4" class="animate__animated animate__fadeIn">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="fw-bold m-0">Fase {{ faseActual }} <small class="text-muted fs-6">de 4</small></h3>
+      <span class="badge bg-primary rounded-pill px-3">{{ faseActual * 25 }}% completado</span>
+    </div>
+    
+    <div class="progress mb-5 shadow-sm" style="height: 12px; border-radius: 10px;">
+      <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+           role="progressbar" [style.width.%]="faseActual * 25"></div>
+    </div>
+
+    <div *ngFor="let p of preguntasFaseActual; let i = index" 
+         class="card border-0 shadow-sm mb-3 hover-card rounded-3 animate__animated animate__fadeInUp"
+         [style.animation-delay]="i * 0.1 + 's'">
+      <div class="card-body d-flex justify-content-between align-items-center p-4">
+        <p class="m-0 fs-5 fw-medium text-dark w-75">{{ p.enunciado }}</p>
+        
+        <div class="btn-group shadow-sm" role="group">
+          <input type="radio" class="btn-check" [name]="'q'+p.idPregunta" [id]="'si'+p.idPregunta" 
+                 value="SI|3.0" [(ngModel)]="respuestasTemporales[p.idPregunta!]" (change)="forceUpdate()">
+          <label class="btn btn-outline-success px-4 py-2" [for]="'si'+p.idPregunta">SÍ</label>
+
+          <input type="radio" class="btn-check" [name]="'q'+p.idPregunta" [id]="'no'+p.idPregunta" 
+                 value="NO|0.0" [(ngModel)]="respuestasTemporales[p.idPregunta!]" (change)="forceUpdate()">
+          <label class="btn btn-outline-danger px-4 py-2" [for]="'no'+p.idPregunta">NO</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-5 mb-5">
+      <button class="btn btn-dark btn-lg px-5 py-3 rounded-pill shadow" 
+              [disabled]="!todasRespondidas()" (click)="siguienteFase()">
+        {{ faseActual === 4 ? 'Ver mis resultados' : 'Continuar a la siguiente fase' }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="faseActual > 4" class="text-center py-5 animate__animated animate__pulse animate__infinite">
+    <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status"></div>
+    <h3 class="mt-4 fw-bold">Calculando tu futuro...</h3>
+    <p class="text-muted">Estamos cruzando tus datos con las mejores carreras.</p>
+  </div>
+</div>

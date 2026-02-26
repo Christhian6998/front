@@ -1,0 +1,46 @@
+<div class="container py-4">
+  <div class="card border-0 shadow-lg rounded-4 p-4 mb-4">
+    <h2 class="fw-bold mb-4 text-primary">Localiza tu futura sede</h2>
+    
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label fw-bold">1. Selecciona Universidad o Instituto</label>
+        <select class="form-select rounded-pill" [(ngModel)]="entidadSeleccionada" (change)="onEntidadChange()">
+          <option value="">Selecciona una entidad...</option>
+          <option *ngFor="let i of instituciones" [value]="i.idInstitucion">
+            {{ i.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label fw-bold">2. Tu ubicación en Lima</label>
+        <div class="input-group shadow-sm rounded-pill overflow-hidden">
+          <input type="text" class="form-control border-0 px-4" 
+                 [(ngModel)]="direccionUsuario" 
+                 [disabled]="!entidadSeleccionada"
+                 placeholder="Escribe tu dirección...">
+          
+          <button class="btn btn-white border-0 text-primary" (click)="obtenerUbicacionActual()" title="Usar mi GPS">
+            <i class="bi bi-crosshair2"></i>
+          </button>
+          
+          <button class="btn btn-primary px-4 fw-bold" 
+                  (click)="buscarDireccion()"
+                  [ngClass]="{'opacity-50': !entidadSeleccionada}">
+            BUSCAR SEDE
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="map" class="rounded-4 shadow-sm mb-3" style="height: 500px;"></div>
+
+  <div *ngIf="mensajeResultado" class="alert alert-info border-0 rounded-4 shadow-sm d-flex align-items-center animate__animated animate__fadeInUp">
+    <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+    <div>
+      <span class="fw-bold">Resultado:</span> {{ mensajeResultado }}
+    </div>
+  </div>
+</div>

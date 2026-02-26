@@ -1,0 +1,208 @@
+<div class="container py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+    <h2 class="fw-bold text-primary mb-0">Gestión de Banco de Preguntas</h2>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary rounded-pill px-4 fw-bold btn-vibrate" (click)="abrirPanelCriterios()">
+        <i class="bi bi-tags-fill me-2"></i> Criterios
+      </button>
+
+      <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" (click)="nuevaPregunta()">
+        <i class="bi bi-plus-lg me-2"></i> Nueva Pregunta
+      </button>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control border-start-0" 
+                   placeholder="Buscar enunciado o tipo..." 
+                   [(ngModel)]="textoBusqueda" (input)="buscar()">
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="btn-group w-100 shadow-sm" role="group">
+            <button type="button" class="btn btn-outline-primary" 
+                    [class.active]="faseSeleccionada === 0" (click)="filtrarFase(0)">Todas</button>
+            <button type="button" class="btn btn-outline-primary" 
+                    [class.active]="faseSeleccionada === 1" (click)="filtrarFase(1)">Evaluación Inicial</button>
+            <button type="button" class="btn btn-outline-primary" 
+                    [class.active]="faseSeleccionada === 2" (click)="filtrarFase(2)">Filtros de Aptitud</button>
+            <button type="button" class="btn btn-outline-primary" 
+                    [class.active]="faseSeleccionada === 3" (click)="filtrarFase(3)">Exploración Vocacional</button>
+            <button type="button" class="btn btn-outline-primary" 
+                    [class.active]="faseSeleccionada === 4" (click)="filtrarFase(4)">Especialización de Carrera</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 45%;">Enunciado</th>
+            <th>Area</th>
+            <th class="text-center">Peso</th>
+            <th class="text-center">Etapa</th>
+            <th class="text-center">Estado</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of datosPaginados">
+            <td>
+              <div class="text-wrap" style="max-height: 3.6em; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical;">
+                <span class="fw-medium">{{ item.enunciado }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="badge rounded-pill bg-light text-primary border border-primary-subtle">
+                {{ item.area }}
+              </span>
+            </td>
+            <td class="text-center fw-bold text-secondary">{{ item.peso }}</td>
+            <td class="text-center">
+              <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
+                Fase {{ item.fase }}
+              </span>
+            </td>
+            <td class="text-center">
+              <span [class]="item.estado ? 'text-success fw-semibold' : 'text-danger fw-semibold'">
+                <i class="bi" [class.bi-check-circle-fill]="item.estado" [class.bi-x-circle-fill]="!item.estado"></i>
+                {{ item.estado ? ' Activo' : ' Inactivo' }}
+              </span>
+              
+              <button [class]="item.estado ? 'btn btn-sm btn-outline-success' : 'btn btn-sm btn-outline-danger'" (click)="cambiarEstado(item)" title="Alternar Estado">
+                <i class="bi bi-arrow-repeat"></i>
+              </button>
+            </td>
+            <td class="text-center">
+              <div class="btn-group shadow-sm">
+                <button class="btn btn-sm btn-outline-primary" (click)="editar(item)" title="Editar">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="eliminar(item)" title="Eliminar">
+                  <i class="bi bi-trash3-fill"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          
+          <tr *ngIf="listadoFiltrado.length === 0">
+            <td colspan="6" class="text-center py-5 text-muted">
+              <i class="bi bi-patch-question d-block fs-1 mb-2"></i>
+              No se encontraron preguntas registradas en esta sección.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-footer bg-white border-top-0 py-3">
+      <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+        <small class="fw-medium text-muted">
+          Mostrando <b>{{ datosPaginados.length }}</b> de <b>{{ listadoFiltrado.length }}</b> preguntas
+        </small>
+        
+        <nav>
+          <ul class="pagination pagination-sm mb-0 shadow-sm">
+            <li class="page-item" [class.disabled]="paginaActual === 1">
+              <button class="page-link px-3" (click)="paginaActual = paginaActual - 1">
+                Anterior
+              </button>
+            </li>
+            <li class="page-item active">
+              <span class="page-link px-3 fw-bold">{{ paginaActual }} / {{ totalPaginas }}</span>
+            </li>
+            <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+              <button class="page-link px-3" (click)="paginaActual = paginaActual + 1">
+                Siguiente
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop fade show" *ngIf="mostrarForm"></div>
+<div class="modal fade show d-block" *ngIf="mostrarForm" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered shadow-lg">
+    <div class="modal-content border-0 rounded-4 overflow-hidden">
+        <app-gestion-pregunta-form 
+        [modo]="modoForm" 
+        [data]="preguntaSeleccionada" 
+        (cerrar)="mostrarForm=false; cargarDatos();">
+      </app-gestion-pregunta-form>
+      </div>
+  </div>
+</div>
+
+
+<div class="modal-backdrop fade show" *ngIf="mostrarCriterios"></div>
+<div class="modal fade show d-block" *ngIf="mostrarCriterios" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <div class="modal-header bg-dark text-white p-4">
+        <h5 class="modal-title fw-bold">Administración de Criterios</h5>
+        <button type="button" class="btn-close btn-close-white" (click)="mostrarCriterios=false"></button>
+      </div>
+
+      <div class="modal-body p-4 bg-light">
+        <div class="row g-2 mb-4 align-items-end">
+          <div class="col">
+            <label class="small fw-bold text-muted">Nombre del Criterio</label>
+            <input type="text" class="form-control" [(ngModel)]="criterioInput" 
+                   [placeholder]="modoCriterio === 'editar' ? 'Selecciona un criterio abajo...' : 'Ej: ANALÍTICO'"
+                   [disabled]="modoCriterio !== 'registrar' && !criterioSeleccionado">
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-success px-4" (click)="accionPrincipalCriterio()" 
+                    [disabled]="!criterioInput || (modoCriterio === 'editar' && !criterioSeleccionado)">
+              <i class="bi bi-check-lg me-1"></i> Guardar
+            </button>
+          </div>
+          <div class="col-auto">
+            <div class="btn-group">
+              <button class="btn" [class.btn-warning]="!editandoActivo" [class.btn-primary]="editandoActivo"
+                      (click)="editandoActivo ? setModo('registrar') : setModo('editar')">
+                <i class="bi" [class.bi-pencil-square]="!editandoActivo" [class.bi-plus-circle]="editandoActivo"></i>
+                {{ editandoActivo ? ' Añadir' : ' Actualizar' }}
+              </button>
+              <button class="btn btn-danger" (click)="setModo('eliminar')">
+                <i class="bi bi-trash-fill"></i> Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 bg-white rounded-4 border border-2 border-dashed">
+          <div class="d-flex flex-wrap justify-content-start gap-2">
+            <div *ngFor="let c of criterios" 
+                 class="p-3 rounded-3 border fw-bold criterio-tag bg-light shadow-sm"
+                 [class.border-delete]="modoCriterio === 'eliminar'"
+                 [class.border-edit]="modoCriterio === 'editar' && criterioSeleccionado?.idCriterio === c.idCriterio"
+                 (click)="seleccionarCriterio(c)">
+              {{ c.nombre }}
+            </div>
+            <div *ngIf="criterios.length === 0" class="text-center w-100 py-4 text-muted">
+              No hay criterios registrados. Comienza añadiendo uno arriba.
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer border-0">
+        <button class="btn btn-outline-dark rounded-pill px-4" (click)="mostrarCriterios=false">Cerrar Lámina</button>
+      </div>
+    </div>
+  </div>
+</div>

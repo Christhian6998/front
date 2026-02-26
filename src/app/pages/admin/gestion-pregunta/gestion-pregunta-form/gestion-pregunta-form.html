@@ -1,0 +1,88 @@
+<div class="modal-header bg-primary text-white p-4">
+  <h5 class="modal-title fw-bold">
+    <i class="bi" [class.bi-plus-circle]="modo === 'create'" [class.bi-pencil-square]="modo === 'edit'"></i>
+    {{ modo === 'create' ? 'Registro Masivo de Preguntas' : 'Editar Pregunta' }}
+  </h5>
+  <button type="button" class="btn-close btn-close-white" (click)="cerrar.emit()"></button>
+</div>
+
+<div class="modal-body p-4 bg-light" style="max-height: 70vh; overflow-y: auto;">
+  <div *ngFor="let p of preguntas; let i = index" class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom-0">
+      <span class="badge bg-primary rounded-pill">Pregunta #{{ i + 1 }}</span>
+      <button *ngIf="modo === 'create' && preguntas.length > 1" 
+              class="btn btn-sm btn-outline-danger border-0" (click)="quitarCampo(i)">
+        <i class="bi bi-trash-fill"></i>
+      </button>
+    </div>
+    
+    <div class="card-body pt-0">
+        <div class="row g-3">
+            <div class="col-10">
+            <label class="form-label small fw-bold text-muted">Enunciado</label>
+            <textarea class="form-control bg-light border-0" rows="2" 
+                        [class.is-invalid]="!p.enunciado?.trim()"
+                        [(ngModel)]="p.enunciado" placeholder="Escribe la pregunta aquí..."></textarea>
+            </div>
+
+            <div class="col-md-2">
+            <label class="form-label small fw-bold text-muted">Peso (Puntaje)</label>
+            <input type="number" class="form-control bg-light border-0" 
+                    [class.is-invalid]="p.peso <= 0"
+                    [(ngModel)]="p.peso" min="1">
+            </div>
+
+            <div class="col-md-5">
+            <label class="form-label small fw-bold text-muted">Area de Pregunta</label>
+            <select class="form-select bg-light border-0" 
+                    [class.is-invalid]="!p.area"
+                    [(ngModel)]="p.area">
+                <option value="" disabled selected>Selecciona Area...</option>
+                <option *ngFor="let t of areasPregunta" [value]="t.value">{{ t.label }}</option>
+            </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label small fw-bold text-muted">Criterio (Skill/Habilidad)</label>
+              <select class="form-select bg-light border-0" 
+                      [class.is-invalid]="p.fase > 1 && !p.criterio" 
+                      [disabled]="p.fase === 1"
+                      [compareWith]="compareCriterios" 
+                      [(ngModel)]="p.criterio">
+                  <option [ngValue]="null" disabled selected>Selecciona Criterio...</option>
+                  <option *ngFor="let c of criterios" [ngValue]="c">{{ c.nombre }}</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label small fw-bold text-muted">Fase del Test</label>
+              <select class="form-select bg-light border-0" 
+                      [class.is-invalid]="!p.fase"
+                      [(ngModel)]="p.fase"
+                      (change)="onFaseChange(p)">
+                  <option [ngValue]="null" disabled selected>Selecciona Fase...</option>
+                  <option [ngValue]="1">Evaluación Inicial</option>
+                  <option [ngValue]="2">Filtro de Aptitudes</option>
+                  <option [ngValue]="3">Exploración Vocacional</option>
+                  <option [ngValue]="4">Especialización de Carrera</option>
+              </select>
+            </div>
+        </div>
+    </div>
+</div>
+  <div class="text-center mt-3" *ngIf="modo === 'create'">
+    <button class="btn btn-outline-primary border-dashed w-100 py-3 rounded-4" (click)="agregarCampo()">
+      <i class="bi bi-plus-circle-dotted me-2"></i> Añadir otra pregunta a la lista
+    </button>
+  </div>
+
+<div class="modal-footer border-0 p-4">
+  <button class="btn btn-light rounded-pill px-4 fw-bold" (click)="cerrar.emit()">Cancelar</button>
+  
+  <button class="btn btn-primary rounded-pill px-5 fw-bold shadow" 
+          [disabled]="formularioInvalido"
+          (click)="modo === 'create' ? guardarMasivo() : guardarEdicion()">
+    <i class="bi bi-cloud-arrow-up-fill me-2"></i>
+    {{ modo === 'create' ? 'Guardar Todo' : 'Actualizar Pregunta' }}
+  </button>
+</div>

@@ -1,0 +1,23 @@
+#map { z-index: 1; }
+
+.alert {
+  background: white;
+  color: #1e293b;
+  border-left: 5px solid #4f46e5 !important;
+}
+
+/* Estilo para que el botón de ubicación no parezca un botón tosco*/
+.btn-white {
+  background: white;
+  &:hover { background: #f8fafc; }
+}
+
+/* Animación de entrada para el mensaje*/
+.animate__fadeInUp {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

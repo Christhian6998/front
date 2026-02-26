@@ -1,0 +1,38 @@
+/* Animación de vibración sutil */
+@keyframes shake-subtle {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(0.5px, -0.5px); }
+  50% { transform: translate(-0.5px, 0.5px); }
+  75% { transform: translate(0.5px, 0.5px); }
+  100% { transform: translate(0, 0); }
+}
+
+.btn-vibrate {
+  animation: shake-subtle 3s ease-in-out infinite;
+}
+
+.btn-vibrate:hover {
+  animation: none; /* Se detiene al pasar el mouse */
+}
+
+/* Tablero de criterios */
+.criterio-tag {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+  text-align: center;
+}
+
+.criterio-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.border-delete {
+  border: 2px solid #dc3545 !important;
+  color: #dc3545 !important;
+}
+
+.border-edit {
+  border: 2px solid #ffc107 !important;
+}

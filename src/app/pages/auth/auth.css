@@ -1,0 +1,21 @@
+.login-page {
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 480px; /* Ancho ajustado */
+  padding: 3rem;   /* Más aire interno (breathing room) */
+  margin: 15px;
+}
+
+.icon-circle {
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-bottom: 1.5rem;
+}
