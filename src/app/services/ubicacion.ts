@@ -9,7 +9,7 @@ export class Ubicacion {
   constructor(private http: HttpClient) {}
 
   buscarEnLima(direccion: string) {
-    // Coordenadas aproximadas de Lima Metropolitana (Bounding Box)
+    // Coordenadas aproximadas de Lima Metropolitana 
     // viewbox=lon1,lat1,lon2,lat2 (Oeste, Norte, Este, Sur)
     const viewbox = '-77.20,-11.70,-76.70,-12.30';
 

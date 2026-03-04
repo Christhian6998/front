@@ -10,16 +10,18 @@ export class RoleGuard implements CanActivate {
     private router: Router
   ) {}
 
-  canActivate(): boolean {
-
-    // usuario no logueado va al login
-    if (!this.auth.isAuthenticated()) {
+  canActivate(route: any): boolean {
+    if (!this.auth.isAuthenticated() || this.auth.isTokenExpired()) {
+      this.auth.logout(); // Limpiamos por si acaso (just in case)
       this.router.navigate(['/login']);
       return false;
     }
 
     // logueado y no es POSTULANTE va al home
-    if (this.auth.userRol() !== 'POSTULANTE') {
+    const userRole = this.auth.userRol();
+    const expectedRole = route.data['role'];
+
+    if (expectedRole && userRole !== expectedRole) {
       this.router.navigate(['/']);
       return false;
     }

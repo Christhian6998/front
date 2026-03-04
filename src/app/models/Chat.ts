@@ -1,11 +1,11 @@
 // Lo que enviamos al Backend
 export interface ChatRequest {
-  message: string
+  mensaje: string
 }
 
 // Lo que recibimos del Backend
 export interface ChatResponse {
-  response: string
+  respuesta: string
 }
 
 // Para manejar el historial en el componente

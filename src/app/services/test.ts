@@ -3,12 +3,13 @@ import { Injectable } from '@angular/core';
 import { Pregunta } from '../models/Pregunta';
 import { TestRequestDTO } from '../models/TestRequestDTO';
 import { RecomendacionCarrera } from '../models/RecomendacionCarrera';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TestService {
-  private url = "http://localhost:8080/test"
+  private url = environment.apiUrl+"/test"
 
   constructor(private http: HttpClient) { }
 

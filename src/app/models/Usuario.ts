@@ -3,7 +3,7 @@ export interface Usuario {
   nombre: string
   apellido: string
   email: string
-  direccion: string
+  direccion?: string
   telefono: string
   password?: string
   rol?: string

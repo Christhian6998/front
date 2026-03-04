@@ -8,7 +8,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
 
-  // Si existe token → lo agregamos
+  let request = req;
+  // Si existe token lo agregamos
   if (token) {
     const authReq = req.clone({
       setHeaders: {
@@ -22,8 +23,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401 || error.status === 403) {
-        localStorage.removeItem('session_sov');
-        window.location.reload();
+        authService.logout();
+        window.location.href = '/login';
       }
       return throwError(() => error);
     })

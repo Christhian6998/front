@@ -93,6 +93,7 @@ export class TestComponent {
     // 3. Avanzar
     this.faseActual++;
     this.cargarPreguntas();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // test.component.ts
@@ -159,4 +160,6 @@ export class TestComponent {
       c.idCarrera == idSeleccionado || !seleccionadas.includes(c.idCarrera)
     );
   }
+
+  
 }

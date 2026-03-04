@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, inject } from '@angular/core';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { Chat } from './pages/chat/chat';
 import { AuthService } from './services/auth';
 import Swal from 'sweetalert2';
 import { filter } from 'rxjs';
+import { ActualizarPerfil } from './pages/postulante/actualizar-perfil/actualizar-perfil';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule, Chat],
+  imports: [RouterOutlet, CommonModule, Chat, RouterLink, ActualizarPerfil],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -28,17 +29,35 @@ export class App {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         const hiddenRoutes = ['/login', '/registro'];
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         this.showChat = !hiddenRoutes.includes(event.urlAfterRedirects);
       });
   }
 
   iniciarVigilanciaSesion() {
     this.sessionCheckId = setInterval(() => {
-      if (this.authService.isAuthenticated() && this.authService.isTokenExpired()) {
-        clearInterval(this.sessionCheckId);
-        this.mostrarAlertaExpiracion();
+      if (this.authService.isAuthenticated()) {
+        if (this.authService.isTokenExpired()) {
+          clearInterval(this.sessionCheckId);
+          
+          Swal.fire({
+            title: 'Sesión Expirada',
+            text: 'Tu tiempo de sesión ha terminado. Por favor, vuelve a ingresar.',
+            icon: 'warning',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false, 
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          }).then(() => {
+            this.finalizarSesionForzada();
+          });
+        }
       }
-    }, 10000);
+    }, 3000);
   }
 
   @HostListener('window:scroll', [])
@@ -76,7 +95,7 @@ export class App {
       confirmButtonText: 'Aceptar y Salir',
       confirmButtonColor: '#312e81',
       allowOutsideClick: false,
-      timer: 60000,
+      timer: 15000,
       timerProgressBar: true,
       didOpen: () => {
         timerInterval = setInterval(() => {
@@ -86,7 +105,7 @@ export class App {
             const b = content.querySelector('b');
             if (b) b.textContent = timeLeft.toString();
           }
-        }, 1000);
+        }, 200);
       },
       willClose: () => {
         clearInterval(timerInterval);

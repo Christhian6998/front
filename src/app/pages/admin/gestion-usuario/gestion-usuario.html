@@ -1,0 +1,157 @@
+<div class="container py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+    <h2 class="fw-bold text-primary mb-0">Gestión de Usuarios</h2>
+    <div class="d-flex gap-2">
+      <button class="btn" [class.btn-primary]="!soloConsentimiento" [class.btn-outline-primary]="soloConsentimiento" 
+              (click)="toggleConsentimiento()" class="btn rounded-pill px-4 fw-bold shadow-sm">
+        <i class="bi" [class.bi-people-fill]="!soloConsentimiento" [class.bi-patch-check-fill]="soloConsentimiento"></i>
+        {{ soloConsentimiento ? ' Ver Todos' : ' Ver Consentimientos' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control border-start-0" 
+               placeholder="Buscar por nombre, email, teléfono o fecha..." 
+               [(ngModel)]="searchTerm" (input)="aplicarFiltros()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Usuario</th>
+            <th>Contacto</th>
+            <th class="text-center">Consentimiento</th>
+            <th class="text-center">F. Nacimiento</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of usuariosPaginados">
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="avatar-circle me-3 bg-primary-subtle text-primary fw-bold">
+                  {{ u.nombre[0] }}{{ u.apellido[0] }}
+                </div>
+                <div>
+                  <div class="fw-bold">{{ u.nombre }} {{ u.apellido }}</div>
+                  <small class="text-muted">{{ u.rol }}</small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="small"><i class="bi bi-envelope-at me-1"></i> {{ u.email }}</div>
+              <div class="small"><i class="bi bi-telephone me-1"></i> {{ u.telefono }}</div>
+            </td>
+            <td class="text-center">
+              <span class="badge rounded-pill" [ngClass]="u.consentimiento ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle'">
+                {{ u.consentimiento ? 'Autorizado' : 'Pendiente' }}
+              </span>
+            </td>
+            <td class="text-center fw-medium text-secondary">
+              {{ u.fechaNacimiento | date:'dd/MM/yyyy':'UTC' }}
+            </td>
+            <td class="text-center">
+              <div class="btn-group shadow-sm">
+                <button class="btn btn-sm btn-outline-primary" (click)="abrirModal(u)" title="Editar">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" *ngIf="u.rol !== 'ADMIN'" (click)="eliminar(u)" title="Eliminar">
+                  <i class="bi bi-trash3-fill"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="usuariosFiltrados.length === 0">
+            <td colspan="5" class="text-center py-5 text-muted">
+              <i class="bi bi-person-exclamation d-block fs-1 mb-2"></i>
+              No se encontraron usuarios registrados.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-footer bg-white border-top-0 py-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <small class="text-muted">Página <b>{{ currentPage }}</b> de <b>{{ totalPages }}</b></small>
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link px-3" (click)="prevPage()">Anterior</button>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <button class="page-link px-3" (click)="nextPage()">Siguiente</button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop fade show" *ngIf="isModalOpen"></div>
+<div class="modal fade show d-block" *ngIf="isModalOpen" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <div class="modal-header bg-primary text-white p-4">
+        <h5 class="modal-title fw-bold"><i class="bi bi-person-gear me-2"></i> Actualizar Perfil de Usuario</h5>
+        <button type="button" class="btn-close btn-close-white" (click)="cerrarModal()"></button>
+      </div>
+      
+      <div class="modal-body p-4 bg-light">
+        <form class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label small fw-bold text-muted">Nombre</label>
+            <input type="text" class="form-control border-0 shadow-sm" [(ngModel)]="usuarioEdit.nombre" name="n">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-bold text-muted">Apellido</label>
+            <input type="text" class="form-control border-0 shadow-sm" [(ngModel)]="usuarioEdit.apellido" name="a">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-bold text-muted">Teléfono</label>
+            <input type="text" class="form-control border-0 shadow-sm" [(ngModel)]="usuarioEdit.telefono" name="t" maxlength="9" placeholder="9XXXXXXXX" onkeypress="return /[0-9]/.test(event.key)">
+          </div>
+          <div class="col-md-6
+          ">
+            <label class="form-label small fw-bold text-muted">Correo Electrónico</label>
+            <input type="email" class="form-control border-0 shadow-sm" [(ngModel)]="usuarioEdit.email" name="e">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold text-muted">Fecha de Nacimiento</label>
+            <input type="date" class="form-control border-0 shadow-sm" [(ngModel)]="usuarioEdit.fechaNacimiento" name="f">
+          </div>
+          <div class="col-md-12">
+            <label class="form-label small fw-bold text-muted">Dirección</label>
+            <textarea class="form-control border-0 shadow-sm" [(ngModel)]="usuarioEdit.direccion" name="d" rows="2" placeholder="Ej: Av. Siempre Viva 742, Los Olivos..."></textarea>
+          </div>
+
+          <hr class="my-4 text-muted">
+          <div class="col-md-6">
+            <label class="form-label small fw-bold text-primary">Nueva Contraseña (Opcional)</label>
+            <input type="password" class="form-control border-0 shadow-sm" [(ngModel)]="pass1" name="p1" placeholder="••••••••">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold text-primary">Confirmar Contraseña</label>
+            <input type="password" class="form-control border-0 shadow-sm" [(ngModel)]="pass2" name="p2" placeholder="••••••••">
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer border-0 p-4">
+        <button class="btn btn-light rounded-pill px-4 fw-bold" (click)="cerrarModal()">Cancelar</button>
+        <button class="btn btn-primary rounded-pill px-5 fw-bold shadow" (click)="guardarCambios()">
+          <i class="bi bi-cloud-arrow-up-fill me-2"></i> Actualizar Usuario
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

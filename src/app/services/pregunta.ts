@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Pregunta } from '../models/Pregunta';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PreguntaService {
-  private url = "http://localhost:8080/pregunta"
+  private url = environment.apiUrl+"/pregunta"
 
   constructor(private http: HttpClient) { }
 

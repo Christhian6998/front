@@ -28,31 +28,41 @@
             "styles": [
               "node_modules/leaflet/dist/leaflet.css",
               "src/styles.css"
+            ],
+            "allowedCommonJsDependencies": [
+              "leaflet",
+              "sweetalert2",
+              "html2canvas",
+              "canvg",
+              "raf",
+              "rgbcolor",
+              "core-js"
             ]
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "2MB",
+                  "maximumError": "3MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "10kB",
+                  "maximumError": "20kB"
                 }
               ],
               "outputHashing": "all"
-            },
-            "development": {
-              "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": true
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": ""
         },
         "serve": {
           "builder": "@angular/build:dev-server",
@@ -60,11 +70,11 @@
             "production": {
               "buildTarget": "sistema-vocacional-front:build:production"
             },
-            "development": {
-              "buildTarget": "sistema-vocacional-front:build:development"
+            "local": {
+              "buildTarget": "sistema-vocacional-front:build"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "local"
         },
         "test": {
           "builder": "@angular/build:unit-test"

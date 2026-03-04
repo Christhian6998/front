@@ -44,7 +44,7 @@ export class Chat {
       next: res => {
         this.isLoading = false;
         this.chatState.add({
-          text: res.response,
+          text: res.respuesta,
           sender: 'bot',
           date: new Date()
         });

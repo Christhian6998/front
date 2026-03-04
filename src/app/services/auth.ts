@@ -2,12 +2,13 @@ import { computed, Injectable, signal } from '@angular/core';
 import { LoginRequest, LoginResponse } from '../models/Auth';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/auth/login';
+  private apiUrl = environment.apiUrl+'/auth/login';
   
   // Usamos una señal para saber si el usuario está logueado en toda la app
   currentUser = signal<LoginResponse | null>(this.getUserFromStorage());
@@ -15,6 +16,7 @@ export class AuthService {
   isAuthenticated = computed(() => !!this.currentUser()?.token);
   userRol = computed(() => this.currentUser()?.rol || null);
   userId = computed(() => this.currentUser()?.id || null);
+  email = computed(() => this.currentUser()?.email || null);
   private checkInterval: any;
 
   constructor(private http: HttpClient) {}

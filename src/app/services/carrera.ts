@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Carrera } from '../models/Carrera';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CarreraService {
-  private apiUrl = 'http://localhost:8080/carrera';
+  private apiUrl = environment.apiUrl+'/carrera';
 
   constructor(private http: HttpClient) { }
 

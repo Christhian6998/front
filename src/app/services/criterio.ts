@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { Criterio } from '../models/Criterio';
 import { HttpClient } from '@angular/common/http';
 import { CriterioCarrera } from '../models/CriterioCarrera';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CriterioService {
-  private apiUrl = 'http://localhost:8080/criterio';
+  private apiUrl = environment.apiUrl+'/criterio';
 
   constructor(private http: HttpClient) { }
 

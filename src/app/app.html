@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg fixed-top navbar-custom px-4" [ngClass]="{'scrolled': isScrolled}">
   <div class="container">
-    <a class="navbar-brand d-flex align-items-center fw-bolder" href="/">
+    <a class="navbar-brand d-flex align-items-center fw-bolder" routerLink="/">
       <div class="bg-primary text-white p-2 rounded-3 me-2">
         <i class="bi bi-stars"></i>
       </div>
@@ -15,33 +15,45 @@
       <ul class="navbar-nav ms-auto align-items-center gap-lg-4 pt-3 pt-lg-0">
 
 
-        <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
-        <li class="nav-item" *ngIf="authService.userRol() !== 'ADMIN'"><a class="nav-link" href="/test">Test Vocacional</a></li>
-        <li class="nav-item" *ngIf="authService.userRol() !== 'ADMIN'"><a class="nav-link" href="/comparador">Comparador</a></li>
-        <li class="nav-item"><a class="nav-link" href="/sedes">Ubicaciones</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/">Inicio</a></li>
+        <li class="nav-item" *ngIf="authService.userRol() !== 'ADMIN'"><a class="nav-link" routerLink="/test">Test Vocacional</a></li>
+        <li class="nav-item" *ngIf="authService.userRol() !== 'ADMIN'"><a class="nav-link" routerLink="/comparador">Comparador</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/sedes">Ubicaciones</a></li>
 
         <!-- POSTULANTE -->
         <ng-container *ngIf="authService.userRol() === 'POSTULANTE'">
-          <li class="nav-item"><a class="nav-link" href="/historial">Historial</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/historial">Historial</a></li>
         </ng-container>
 
         <!-- ADMIN -->
         <ng-container *ngIf="authService.userRol() === 'ADMIN'">
-          <li class="nav-item"><a class="nav-link" href="#">Usuarios</a></li>
-          <li class="nav-item"><a class="nav-link" href="/gestionOferta">Gestionar Ofertas</a></li>
-          <li class="nav-item"><a class="nav-link" href="/gestionPregunta">Preguntas</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/gestionUsuario">Usuarios</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/gestionOferta">Gestionar Ofertas</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/gestionPregunta">Preguntas</a></li>
         </ng-container>
 
         <li class="nav-item mt-2 mt-lg-0" *ngIf="!authService.isAuthenticated()">
-          <a class="btn btn-primary px-4 rounded-pill shadow-sm w-100" href="/login">
+          <a class="btn btn-primary px-4 rounded-pill shadow-sm w-100" routerLink="/login">
             Iniciar Sesión
           </a>
         </li>
         <li class="nav-item mt-2 mt-lg-0" *ngIf="authService.isAuthenticated()">
-          <button class="btn btn-danger px-4 rounded-pill shadow-sm w-100" (click)="logout()">
-            Cerrar Sesión
-          </button>
+          <div class="d-flex align-items-center gap-3">
+            
+            <button *ngIf="authService.userRol() === 'POSTULANTE'"
+                    class="btn btn-outline-primary border-0 p-0" 
+                    data-bs-toggle="offcanvas" 
+                    data-bs-target="#offcanvasPerfil"
+                    title="Mi Perfil">
+              <i class="bi bi-person-circle fs-3"></i>
+            </button>
+
+            <button class="btn btn-danger px-4 rounded-pill shadow-sm" (click)="logout()">
+              Cerrar Sesión
+            </button>
+          </div>
         </li>
+        
       </ul>
     </div>
   </div>
@@ -61,3 +73,5 @@
 </footer>
 
 <app-chat *ngIf="showChat"></app-chat>
+
+<app-actualizar-perfil *ngIf="authService.userRol() === 'POSTULANTE'"></app-actualizar-perfil>
