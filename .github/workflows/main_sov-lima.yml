@@ -27,5 +27,5 @@ jobs:
       with:
         app-name: 'sov-lima'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        # Importante: Esta ruta debe coincidir con tu carpeta de salida
         package: 'dist/sistema-vocacional-front/browser'
+
