@@ -60,7 +60,7 @@
             </td>
             <td class="text-center">
               <div class="btn-group shadow-sm">
-                <button class="btn btn-sm btn-outline-primary" (click)="abrirModal(u)" title="Editar">
+                <button class="btn btn-sm btn-outline-primary" *ngIf="u.idUsuario !== 1" (click)="abrirModal(u)" title="Editar">
                   <i class="bi bi-pencil-fill"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-danger" *ngIf="u.rol !== 'ADMIN'" (click)="eliminar(u)" title="Eliminar">
