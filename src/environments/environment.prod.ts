@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
     apiUrl: 'https://sistema-vocacional.azurewebsites.net',
-    apiChat: ''
+    apiChat: 'https://sov-chatbot.azurewebsites.net'
 };
