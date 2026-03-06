@@ -22,10 +22,16 @@ jobs:
     - name: Build Project
       run: npm run build -- --configuration=production
 
+    - name: Prepare Deployment Folder
+      run: |
+        cp -r dist/sistema-vocacional-front/browser/* .
+        rm -rf dist
+
     - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v2
+      uses: azure/webapps-deploy@v3
       with:
         app-name: 'sov-lima'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: 'dist/sistema-vocacional-front/browser'
+
 
