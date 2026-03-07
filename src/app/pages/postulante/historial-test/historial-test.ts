@@ -79,56 +79,64 @@ export class HistorialTest {
   }
 
   async descargarPDF() {
-  const DATA = document.getElementById('reporte-profesional');
-  if (!DATA) return;
+    const DATA = document.getElementById('reporte-profesional');
+    if (!DATA) return;
 
-  this.loading.set(true);
+    this.loading.set(true);
 
-  try {
-    const canvas = await html2canvas(DATA, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff'
-    });
+    try {
+      const canvas = await html2canvas(DATA, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
 
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    
-    // Configuraciones de página (page settings)
-    const margin = 10; 
-    const pdfWidth = pdf.internal.pageSize.getWidth() - (margin * 2);
-    const pdfHeight = pdf.internal.pageSize.getHeight() - (margin * 2);
-    
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-    const ratio = pdfWidth / imgWidth;
-    
-    const finalImgWidth = pdfWidth;
-    const finalImgHeight = imgHeight * ratio;
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      // Configuraciones de página (page settings)
+      const margin = 10; 
+      const pdfWidth = pdf.internal.pageSize.getWidth() - (margin * 2);
+      const pdfHeight = pdf.internal.pageSize.getHeight() - (margin * 2);
+      
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = pdfWidth / imgWidth;
+      
+      const finalImgWidth = pdfWidth;
+      const finalImgHeight = imgHeight * ratio;
 
-    let heightLeft = finalImgHeight;
-    let position = margin; // Posición inicial con margen superior
+      let heightLeft = finalImgHeight;
+      let position = margin; // Posición inicial con margen superior
 
-    // Primera página
-    pdf.addImage(imgData, 'PNG', margin, position, finalImgWidth, finalImgHeight);
-    heightLeft -= pdfHeight;
-
-    // Añadir páginas extra si es necesario (loop for extra pages)
-    while (heightLeft > 0) {
-      position = heightLeft - finalImgHeight + margin;
-      pdf.addPage();
+      // Primera página
       pdf.addImage(imgData, 'PNG', margin, position, finalImgWidth, finalImgHeight);
       heightLeft -= pdfHeight;
-    }
 
-    pdf.save(`Reporte_Vocacional_${this.userId()}.pdf`);
-    
-  } catch (error) {
-    console.error(error);
-    Swal.fire('Error', "No se pudo generar el PDF");
-  } finally {
-    this.loading.set(false);
+      // Añadir páginas extra si es necesario (loop for extra pages)
+      while (heightLeft > 0) {
+        position = heightLeft - finalImgHeight + margin;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', margin, position, finalImgWidth, finalImgHeight);
+        heightLeft -= pdfHeight;
+      }
+
+      pdf.save(`Reporte_Vocacional_${this.userId()}.pdf`);
+      
+    } catch (error) {
+      console.error(error);
+      Swal.fire('Error', "No se pudo generar el PDF");
+    } finally {
+      this.loading.set(false);
+    }
   }
-}
+
+  contactarSocio(): void {
+    const phone = '519896667747';
+    const message = 'Hola, he realizado el test vocacional de SOV Lima y tengo dudas con los resultados que han salido, ¿me puedes ayudar?';
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    
+    window.open(url, '_blank');
+  }
 }
