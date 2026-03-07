@@ -7,6 +7,7 @@ import { OfertaCarreraService } from '../../../services/oferta-carrera';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Swal from 'sweetalert2';
+import { UsuarioService } from '../../../services/usuario';
 
 @Component({
   selector: 'app-historial-test',
@@ -27,16 +28,27 @@ export class HistorialTest {
   constructor(
     private testService: TestService,
     private authService: AuthService,
-    private ofertaService: OfertaCarreraService
-    ) {}
+    private ofertaService: OfertaCarreraService,
+    private usuarioService: UsuarioService
+  ) {}
 
-  ngOnInit() {
+  nombreCompleto = signal<string>('Cargando...');
+
+  async ngOnInit() {
+    const email = this.authService.email();
+    if (email) {
+      try {
+        const user = await firstValueFrom(this.usuarioService.buscarUsuario(email));
+        this.nombreCompleto.set(`${user.nombre} ${user.apellido}`);
+      } catch (e) {
+        this.nombreCompleto.set('Postulante');
+      }
+    }
     this.cargarIntentos();
   }
 
   async cargarIntentos() {
     const id = this.userId();
-    console.log("UserID actual:", id);
     if (id) {
       try {
         const res = await firstValueFrom(this.testService.listarIntentos(id));
@@ -122,7 +134,8 @@ export class HistorialTest {
         heightLeft -= pdfHeight;
       }
 
-      pdf.save(`Reporte_Vocacional_${this.userId()}.pdf`);
+      const nombreLimpio = this.nombreCompleto().replace(/\s+/g, '_');
+      pdf.save(`Reporte_Vocacional_${nombreLimpio}.pdf`);
       
     } catch (error) {
       console.error(error);

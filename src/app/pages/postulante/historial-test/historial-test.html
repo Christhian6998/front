@@ -55,7 +55,8 @@
         <h1 class="display-6 fw-bold text-primary">Reporte de Afinidad Profesional</h1>
         <p class="text-muted">Generado el: {{recomendacionInfo()?.fechaRegistrada | date: 'dd/MM/yyyy HH:mm'}}</p>
         <div class="profile-box mt-3 p-3 bg-light rounded-3">
-          <h5 class="fw-bold m-0 text-dark">Tu Perfil: <span class="text-primary">{{recomendacionInfo()?.perfil}}</span></h5>
+          <h5 class="fw-bold m-0 text-dark"><span class="text-primary">{{ nombreCompleto() }}</span></h5>
+          <h5 class="fw-bold m-0 text-dark">Perfil: <span class="text-primary">{{recomendacionInfo()?.perfil}}</span></h5>
         </div>
       </div>
 
