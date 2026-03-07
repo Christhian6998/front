@@ -32,6 +32,8 @@ export class TestComponent {
 
   userId = computed(() => this.authService.currentUser()?.id || null);
 
+  isProcessing: boolean = false;
+
   constructor(
     private testService: TestService,
     private carreraService: CarreraService,
@@ -70,7 +72,9 @@ export class TestComponent {
   }
 
   async siguienteFase() {
-    // 1. Guardar las respuestas de esta fase en el array global
+    if (this.isProcessing) return; 
+    this.isProcessing = true;
+    // Guardar las respuestas de esta fase en el array global
     for (const id in this.respuestasTemporales) {
       const parts = this.respuestasTemporales[id].split('|');
       this.todasLasRespuestas.push({
@@ -92,8 +96,9 @@ export class TestComponent {
 
     // 3. Avanzar
     this.faseActual++;
-    this.cargarPreguntas();
+    await this.cargarPreguntas();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.isProcessing = false;
   }
 
   // test.component.ts
@@ -152,6 +157,7 @@ export class TestComponent {
       console.error('Error enviando test', error);
       Swal.fire('Error', 'No se pudo guardar el test. Inténtalo de nuevo.', 'error');
       this.faseActual = 4;
+      this.isProcessing = false;
     }
   }
   getFiltradas(idSeleccionado: number) {

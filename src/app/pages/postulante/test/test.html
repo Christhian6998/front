@@ -34,7 +34,8 @@
       </div>
 
       <button class="btn btn-primary btn-lg px-5 py-3 mt-4 rounded-pill shadow" 
-              [disabled]="sabeCarrera === null" (click)="iniciarTest()">
+              [disabled]="sabeCarrera === null || (sabeCarrera === true && carrera1 == 0)" 
+              (click)="iniciarTest()">
         Comenzar el viaje
       </button>
     </div>
@@ -71,7 +72,8 @@
 
     <div class="text-center mt-5 mb-5">
       <button class="btn btn-dark btn-lg px-5 py-3 rounded-pill shadow" 
-              [disabled]="!todasRespondidas()" (click)="siguienteFase()">
+              [disabled]="!todasRespondidas() || isProcessing" 
+              (click)="siguienteFase()">
         {{ faseActual === 4 ? 'Ver mis resultados' : 'Continuar a la siguiente fase' }}
       </button>
     </div>
