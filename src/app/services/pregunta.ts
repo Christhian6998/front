@@ -36,6 +36,6 @@ export class PreguntaService {
   }
 
   cambiarEstado(id: number) {
-    return this.http.patch(this.url + "/estado/" + id, {}, { responseType: 'text' })
+    return this.http.put(this.url + "/estado/" + id, {}, { responseType: 'text' })
   }
 }

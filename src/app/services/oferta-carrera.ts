@@ -47,6 +47,6 @@ export class OfertaCarreraService {
 
   // PATCH: Activar / Desactivar estado (ADMIN)
   cambiarEstado(id: number) {
-    return this.http.patch(this.apiUrl + '/estado/' + id, {}, { responseType: 'text' });
+    return this.http.put(this.apiUrl + '/estado/' + id, {}, { responseType: 'text' });
   }
 }
