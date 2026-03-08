@@ -99,6 +99,7 @@ export class GestionOferta {
         this.listado = dataProcesada;
         this.listadoFiltrado = [...this.listado];
 
+        this.actualizarTotalPaginas();
         this.cdr.detectChanges();
         
         Swal.close();
@@ -160,7 +161,7 @@ export class GestionOferta {
   }
 
   actualizarTotalPaginas() {
-    this.totalPaginas = Math.ceil(this.listadoFiltrado.length / this.itemsPorPagina);
-    if (this.paginaActual > this.totalPaginas) this.paginaActual = 1;
+    const paginas = Math.ceil(this.listadoFiltrado.length / this.itemsPorPagina);
+    this.totalPaginas = paginas > 0 ? paginas : 1;
   }
 }

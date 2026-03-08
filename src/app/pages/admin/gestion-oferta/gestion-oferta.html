@@ -66,7 +66,7 @@
         <nav class="order-1 order-sm-2">
           <ul class="pagination pagination-sm mb-0 shadow-sm">
             <li class="page-item" [class.disabled]="paginaActual === 1">
-              <button class="page-link px-3" (click)="paginaActual = paginaActual - 1">
+              <button class="page-link px-3" (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1">
                 <span class="d-none d-sm-inline">Anterior</span>
                 <i class="bi bi-chevron-left d-inline d-sm-none"></i>
               </button>
@@ -75,7 +75,7 @@
               <span class="page-link px-3 fw-bold">{{ paginaActual }} / {{ totalPaginas }}</span>
             </li>
             <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
-              <button class="page-link px-3" (click)="paginaActual = paginaActual + 1">
+              <button class="page-link px-3" (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual === totalPaginas">
                 <span class="d-none d-sm-inline">Siguiente</span>
                 <i class="bi bi-chevron-right d-inline d-sm-none"></i>
               </button>
