@@ -31,6 +31,12 @@ export class App {
         const hiddenRoutes = ['/login', '/registro'];
         window.scrollTo({ top: 0, behavior: 'smooth' });
         this.showChat = !hiddenRoutes.includes(event.urlAfterRedirects);
+
+        const navbarCollapse = document.getElementById('navbarNav');
+        if (navbarCollapse && navbarCollapse.classList.contains('show')) {
+          const toggler = document.querySelector('.navbar-toggler') as HTMLElement;
+          toggler?.click();
+        }
       });
   }
 
@@ -63,6 +69,10 @@ export class App {
   @HostListener('window:scroll', [])
   onWindowScroll() {
     this.isScrolled = window.scrollY > 20;
+    const navbarCollapse = document.getElementById('navbarNav');
+    if (window.scrollY > 50 && navbarCollapse?.classList.contains('show')) {
+      (document.querySelector('.navbar-toggler') as HTMLElement)?.click();
+    }
   }
 
   toggleChat() {
