@@ -11,6 +11,7 @@ import { TestComponent } from './pages/postulante/test/test';
 import { HistorialTest } from './pages/postulante/historial-test/historial-test';
 import { GestionUsuario } from './pages/admin/gestion-usuario/gestion-usuario';
 import { ActualizarPerfil } from './pages/postulante/actualizar-perfil/actualizar-perfil';
+import { Metricas } from './pages/admin/metricas/metricas';
 
 export const routes: Routes = [
     //Rutas publicas
@@ -29,5 +30,6 @@ export const routes: Routes = [
     //Rutas Admin
     { path: 'gestionOferta', component: GestionOferta, canActivate: [RoleGuard], data: { role: 'ADMIN' } },
     { path: 'gestionPregunta', component: GestionPregunta, canActivate: [RoleGuard], data: { role: 'ADMIN' } },
-    { path: 'gestionUsuario', component: GestionUsuario, canActivate: [RoleGuard], data: { role: 'ADMIN' } }
+    { path: 'gestionUsuario', component: GestionUsuario, canActivate: [RoleGuard], data: { role: 'ADMIN' } },
+    { path: 'metricas', component: Metricas, canActivate: [RoleGuard], data: { role: 'ADMIN' } }
 ];

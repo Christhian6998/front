@@ -30,6 +30,7 @@
           <li class="nav-item"><a class="nav-link" routerLink="/gestionUsuario">Usuarios</a></li>
           <li class="nav-item"><a class="nav-link" routerLink="/gestionOferta">Gestionar Ofertas</a></li>
           <li class="nav-item"><a class="nav-link" routerLink="/gestionPregunta">Preguntas</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/metricas">Metricas</a></li>
         </ng-container>
 
         <li class="nav-item mt-2 mt-lg-0" *ngIf="!authService.isAuthenticated()">
@@ -75,3 +76,8 @@
 <app-chat *ngIf="showChat"></app-chat>
 
 <app-actualizar-perfil *ngIf="authService.userRol() === 'POSTULANTE'"></app-actualizar-perfil>
+
+<div *ngIf="authService.userRol() === 'ADMIN'" [style.display]="router.url === '/metricas' ? 'block' : 'none'"
+     style="position: absolute; top: 120px; left: 5%; width: 90%; height: calc(100vh - 120px); z-index: 5;background: white;border-radius: 15px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+  <iframe *ngIf="urlSeguraParaPrecarga"[src]="urlSeguraParaPrecarga" frameborder="0" style="width: 100%; height: 100%;"allowFullScreen="true"></iframe>
+</div>

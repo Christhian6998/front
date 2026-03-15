@@ -6,6 +6,7 @@ import { AuthService } from './services/auth';
 import Swal from 'sweetalert2';
 import { filter } from 'rxjs';
 import { ActualizarPerfil } from './pages/postulante/actualizar-perfil/actualizar-perfil';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -17,17 +18,39 @@ export class App {
   title = 'ORIENTACIÓN VOCACIONAL';
 
   public authService = inject(AuthService);
-  private router = inject(Router);
+  public router = inject(Router);
+  private sanitizer = inject(DomSanitizer);
 
   isScrolled = false;
   showChat = true;
   private sessionCheckId: any;
+  private metricasCargadas = false;
+  urlSeguraParaPrecarga: SafeResourceUrl | undefined;
 
   constructor() {
+    this.configurarPrecargaMetricas();
     this.iniciarVigilanciaSesion();
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
+        if (this.authService.userRol() === 'ADMIN' && !this.urlSeguraParaPrecarga) {
+          this.configurarPrecargaMetricas();
+        }
+        if (event.urlAfterRedirects === '/metricas' && !this.metricasCargadas) {
+          Swal.fire({
+            title: 'Cargando Reportes',
+            text: 'Por favor espere un momento...',
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+          setTimeout(() => {
+            Swal.close();
+            this.metricasCargadas = true;
+          }, 2500);
+        }
+
         const hiddenRoutes = ['/login', '/registro'];
         window.scrollTo({ top: 0, behavior: 'smooth' });
         this.showChat = !hiddenRoutes.includes(event.urlAfterRedirects);
@@ -38,6 +61,13 @@ export class App {
           toggler?.click();
         }
       });
+  }
+
+  configurarPrecargaMetricas() {
+    if (this.authService.userRol() === 'ADMIN') {
+      const url = 'https://app.powerbi.com/view?r=eyJrIjoiMWE3NzIwMmMtMzliMC00MGU5LTk2NjQtM2FjNzMyMTljM2YzIiwidCI6Ijc1MDRlMzE4LThlMWUtNGQ1NS1iZmZkLTg3NWI0ZGVlODI2MCIsImMiOjR9';
+      this.urlSeguraParaPrecarga = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
   }
 
   iniciarVigilanciaSesion() {
