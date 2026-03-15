@@ -342,12 +342,20 @@ export class GestionOfertaForm {
     return this.criteriosExistentes.filter(c => !seleccionados.includes(c.idCriterio));
   }
 
+  validarSoloNumeros(event: KeyboardEvent) {
+    const allowedChars = /[0-9\.\-]/;
+    if (!allowedChars.test(event.key)) {
+      event.preventDefault();
+    }
+  }
 
   formularioValido():boolean{
     if(!this.institucion.nombre) return false;
 
     const sedesOk = this.sedes.every(s => 
-      s.nombre.trim() && s.direccion.trim() && s.latitud && s.longitud
+      s.nombre.trim() && s.direccion.trim() &&
+      s.latitud?.toString().startsWith('-1') &&
+      s.longitud?.toString().startsWith('-7')
     );
 
     const carrerasOk = this.carreras.every(c => 
@@ -758,4 +766,26 @@ actualizar() {
     });
   }
 
+  // Limpia sugerencias de institución
+  limpiarSugerenciasInst() {
+    setTimeout(() => {
+      this.mostrarSugerenciasInst = false;
+    }, 200);
+  }
+
+  // Limpia sugerencias de carrera
+  limpiarSugerenciasCarrera() {
+    setTimeout(() => {
+      this.indiceCarreraBuscando = null;
+      this.carrerasFiltradas = [];
+    }, 200);
+  }
+
+  // Limpia sugerencias de área
+  limpiarSugerenciasArea() {
+    setTimeout(() => {
+      this.indiceAreaBuscando = null;
+      this.areasFiltradas = [];
+    }, 200);
+  }
 }

@@ -125,11 +125,11 @@
             <label class="form-label small fw-bold text-muted">Correo Electrónico</label>
             <input type="email" class="form-control border-0 shadow-sm" [(ngModel)]="usuarioEdit.email" name="e">
           </div>
-          <div class="col-md-6">
+          <div class="col-md-6" *ngIf="usuarioEdit.rol !== 'ADMIN'">
             <label class="form-label small fw-bold text-muted">Fecha de Nacimiento</label>
             <input type="date" class="form-control border-0 shadow-sm" [(ngModel)]="usuarioEdit.fechaNacimiento" name="f">
           </div>
-          <div class="col-md-12">
+          <div class="col-md-12" *ngIf="usuarioEdit.rol !== 'ADMIN'">
             <label class="form-label small fw-bold text-muted">Dirección</label>
             <textarea class="form-control border-0 shadow-sm" [(ngModel)]="usuarioEdit.direccion" name="d" rows="2" placeholder="Ej: Av. Siempre Viva 742, Los Olivos..."></textarea>
           </div>
