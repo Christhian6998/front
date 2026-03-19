@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, effect, signal } from '@angular/core';
 import { TestService } from '../../../services/test';
 import { AuthService } from '../../../services/auth';
 import { firstValueFrom } from 'rxjs';
@@ -8,6 +8,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Swal from 'sweetalert2';
 import { UsuarioService } from '../../../services/usuario';
+import Chart from 'chart.js/auto';
 
 @Component({
   selector: 'app-historial-test',
@@ -25,12 +26,105 @@ export class HistorialTest {
   detallesCarreras = signal<any[]>([]);
   loading = signal<boolean>(false);
 
+  filtroModalidad = signal<string>('Todas');
+  filtroPresupuesto = signal<number>(99999);
+  allDetallesCompletos = signal<any[]>([]);
+    /* Daschboard personalizados */
+  todasLasOfertas = computed(() => {
+    const uniqueMap = new Map<string, any>();
+
+    this.allDetallesCompletos().forEach(detalle => { 
+      detalle.ofertasFiltradas.forEach((ofe: any) => {
+        // Creamos una llave única: Carrera + Institución + Pensión
+        const uniqueKey = `${detalle.carrera.nombre}-${ofe.institucion.nombre}-${ofe.costoPension}`;
+        
+        // Si la combinación ya existe, comparamos afinidad y nos quedamos con la mayor
+        if (!uniqueMap.has(uniqueKey) || detalle.afinidad > uniqueMap.get(uniqueKey).afinidad) {
+          uniqueMap.set(uniqueKey, { 
+            ...ofe, 
+            afinidad: detalle.afinidad, 
+            nombreCarrera: detalle.carrera.nombre,
+            area: detalle.carrera.area || 'Carrera Profesional'
+          });
+        }
+      });
+    });
+
+    return Array.from(uniqueMap.values());
+  });
+  ofertasDashboard = computed(() => {
+    return this.todasLasOfertas().filter(o => 
+      (this.filtroModalidad() === 'Todas' || o.modalidad.toLowerCase().includes(this.filtroModalidad().toLowerCase())) &&
+      (o.costoPension <= this.filtroPresupuesto())
+    ).sort((a, b) => b.afinidad - a.afinidad);
+  });
+
+  top3Ofertas = computed(() => {
+    const uniqueMap = new Map();
+    this.ofertasDashboard().forEach(o => {
+      if (!uniqueMap.has(o.nombreCarrera)) {
+        uniqueMap.set(o.nombreCarrera, o);
+      }
+    });
+    return Array.from(uniqueMap.values()).slice(0, 3);
+  });
+
+  // KPIs
+  kpiTotal = computed(() => new Set(this.ofertasDashboard().map(o => o.nombreCarrera)).size);
+  kpiPromedioPension = computed(() => {
+    const arr = this.ofertasDashboard();
+    return arr.length ? (arr.reduce((acc, curr) => acc + curr.costoPension, 0) / arr.length) : 0;
+  });
+  kpiPromedioDuracion = computed(() => {
+    const arr = this.ofertasDashboard();
+    return arr.length ? (arr.reduce((acc, curr) => acc + curr.duracion, 0) / arr.length) : 0;
+  });
+  kpiTopModalidad = computed(() => {
+    const arr = this.ofertasDashboard();
+    if (!arr.length) return 'N/A';
+    const counts: any = {};
+    arr.forEach(o => {
+      o.modalidad.split(/[,]| O /i).forEach((m: string) => {
+        const l = m.trim().toUpperCase();
+        counts[l] = (counts[l] || 0) + 1;
+      });
+    });
+    const max = Math.max(...Object.values(counts) as number[]);
+    return Object.keys(counts).filter(k => counts[k] === max).join(' / ');
+  });
+
+  opcionesModalidad = computed(() => {
+    const mods = new Set<string>();
+    this.todasLasOfertas().forEach(o => {
+      o.modalidad.split(/[,]| O /i).forEach((m: string) => {
+        const limpio = m.trim().toUpperCase();
+        if (limpio) mods.add(limpio);
+      });
+    });
+    return Array.from(mods).sort();
+  });
+
+  opcionesPresupuesto = computed(() => {
+    const pensiones = this.todasLasOfertas().map(o => o.costoPension);
+    return [...new Set(pensiones)].sort((a, b) => a - b);
+  });
+
+  bubbleChart: any;
+  doughnutChart: any;
+
   constructor(
     private testService: TestService,
     private authService: AuthService,
     private ofertaService: OfertaCarreraService,
     private usuarioService: UsuarioService
-  ) {}
+  ) {
+    effect(() => {
+      const data = this.ofertasDashboard();
+      if (data.length > 0) {
+        setTimeout(() => this.renderCharts(), 100);
+      }
+    });
+  }
 
   nombreCompleto = signal<string>('Cargando...');
 
@@ -53,6 +147,16 @@ export class HistorialTest {
       try {
         const res = await firstValueFrom(this.testService.listarIntentos(id));
         this.intentos.set(res);
+        const promesas = res.map(async (intento) => {
+          const rec: any = await firstValueFrom(this.testService.obtenerRecomenadcion(intento.idIntento));
+          const dets: any = await firstValueFrom(this.testService.obtenerDetalleRecomendacion(rec.idRecomendacion));
+          for (let d of dets) {
+            d.ofertasFiltradas = await firstValueFrom(this.ofertaService.listarPorCarrera(d.carrera.idCarrera));
+          }
+          return dets;
+        });
+        const todosLosDetalles = await Promise.all(promesas);
+        this.allDetallesCompletos.set(todosLosDetalles.flat());
       } catch (error: any) {
         console.error("Error body:", error.error?.text || error.message);
       }
@@ -152,4 +256,92 @@ export class HistorialTest {
     
     window.open(url, '_blank');
   }
+
+  /*  Metodos para el dashboard */
+  onFiltroModalidadChange(event: any) {
+    this.filtroModalidad.set(event.target.value);
+  }
+
+  onFiltroPresupuestoChange(event: any) {
+    this.filtroPresupuesto.set(Number(event.target.value));
+  }
+
+  renderCharts() {
+    const data = this.ofertasDashboard();
+    
+    // Destroy previous instances
+    if (this.bubbleChart) this.bubbleChart.destroy();
+    if (this.doughnutChart) this.doughnutChart.destroy();
+
+    const bubbleCtx = document.getElementById('decisionBubbleChart') as HTMLCanvasElement;
+    const doughnutCtx = document.getElementById('modalityChart') as HTMLCanvasElement;
+
+    if (!bubbleCtx || !doughnutCtx) return;
+
+    // Chart.js Setup
+    this.bubbleChart = new Chart(bubbleCtx, {
+      type: 'bubble',
+      data: {
+        datasets: [{
+          label: 'Opciones de Estudio',
+          data: data.map(o => ({
+            x: o.duracion,
+            y: o.costoPension,
+            r: Math.max(5, o.afinidad / 5)
+          })),
+          backgroundColor: 'rgba(99, 102, 241, 0.6)',
+          borderColor: 'rgba(99, 102, 241, 1)'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: (context: any) => {
+                const item = data[context.dataIndex];
+                return `${item.nombreCarrera} (${item.institucion.nombre}): S/.${item.costoPension}, ${item.duracion} años`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Años de Carrera' } },
+          y: { title: { display: true, text: 'Costo Pensión (S/.)' } }
+        }
+      }
+    });
+
+    const modalitiesCount: any = {};
+    data.forEach(o => {
+      o.modalidad.split(/[,]| O /i).forEach((m: string) => {
+        const key = m.trim().toUpperCase();
+        if(key) modalitiesCount[key] = (modalitiesCount[key] || 0) + 1;
+      });
+    });
+
+    this.doughnutChart = new Chart(doughnutCtx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(modalitiesCount),
+        datasets: [{
+          data: Object.values(modalitiesCount),
+          backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#8b5cf6']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '70%', // Espacio para el texto central
+        plugins: {
+          legend: {
+            position: 'bottom', // Leyendas abajo para evitar que choquen
+            labels: { boxWidth: 12, font: { size: 10 } }
+          }
+        }
+      }
+    });
+  }
+
 }

@@ -73,3 +73,17 @@
   max-width: 800px; /* Tamaño similar a un A4 */
   margin: auto;
 }
+
+.chart-container {
+  position: relative;
+  height: 250px; 
+}
+
+.chart-center-text {
+  position: absolute;
+  top: 45%; /* Ajuste fino */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none; /* Para que no bloquee el hover del chart */
+}

@@ -82,6 +82,7 @@ export class Sedes {
           this.filteredSedes = data.map(s => ({
             nombre: s.institucion ? s.institucion.nombre : 'Institución',
             sede: s.nombre,
+            direccion: s.direccion,
             lat: s.latitud,
             lng: s.longitud
           }));
@@ -198,7 +199,7 @@ export class Sedes {
       
       // 2. ACTUALIZACIÓN CRÍTICA
       // Asignamos el mensaje
-      this.mensajeResultado = `La sede de ${masCercana.nombre} más cercana a ti es ${masCercana.sede} a unos ${distanciaKm} km aproximadamente.`;
+      this.mensajeResultado = 'La sede de "'+masCercana.nombre+'" más cercana a ti es '+masCercana.sede+' ubicada en '+masCercana.direccion+'. A unos '+distanciaKm+' km de distancia aproximadamente.';
       
       // 3. FORZAR RENDERIZADO
       // Esto obliga a Angular a mostrar el mensaje nuevo AHORA MISMO

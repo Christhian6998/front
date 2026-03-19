@@ -23,6 +23,7 @@ export class GestionUsuario {
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalPages: number = 1;
+  totalUsuario:number=0;
 
   isModalOpen: boolean = false;
   usuarioEdit: any = {};
@@ -68,6 +69,7 @@ export class GestionUsuario {
         (u.fechaNacimiento && u.fechaNacimiento.includes(term))
     );
     this.totalPages = Math.ceil(this.usuariosFiltrados.length / this.itemsPerPage) || 1;
+    this.totalUsuario=this.usuariosFiltrados.length
     this.actualizarPaginacion();
   }
 
