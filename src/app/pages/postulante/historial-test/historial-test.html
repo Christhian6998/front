@@ -182,7 +182,8 @@
             </div>
             <div class="text-end">
               <div class="affinity-circle">
-                <span class="fs-4 fw-bold">Afinidad: {{item.afinidad | number:'1.2-2'}}%</span>
+                <span class="fs-4 fw-bold" *ngIf="item.afinidad > 0">Afinidad: {{item.afinidad | number:'1.2-2'}}%</span>
+                <span class="fs-4 fw-bold" *ngIf="item.afinidad <= 0">Exploración Sugerida</span>
               </div>
             </div>
           </div>

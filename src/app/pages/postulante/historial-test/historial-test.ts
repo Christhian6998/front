@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, computed, effect, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, effect, signal } from '@angular/core';
 import { TestService } from '../../../services/test';
 import { AuthService } from '../../../services/auth';
 import { firstValueFrom } from 'rxjs';
@@ -95,7 +95,9 @@ export class HistorialTest {
 
   opcionesModalidad = computed(() => {
     const mods = new Set<string>();
-    this.todasLasOfertas().forEach(o => {
+    this.todasLasOfertas()
+    .filter(o => o.costoPension <= this.filtroPresupuesto())
+    .forEach(o => {
       o.modalidad.split(/[,]| O /i).forEach((m: string) => {
         const limpio = m.trim().toUpperCase();
         if (limpio) mods.add(limpio);
@@ -105,7 +107,11 @@ export class HistorialTest {
   });
 
   opcionesPresupuesto = computed(() => {
-    const pensiones = this.todasLasOfertas().map(o => o.costoPension);
+    const pensiones = this.todasLasOfertas()
+      .filter(o => 
+          this.filtroModalidad() === 'Todas' || 
+          o.modalidad.toLowerCase().includes(this.filtroModalidad().toLowerCase()))
+      .map(o => o.costoPension);
     return [...new Set(pensiones)].sort((a, b) => a - b);
   });
 
@@ -116,12 +122,16 @@ export class HistorialTest {
     private testService: TestService,
     private authService: AuthService,
     private ofertaService: OfertaCarreraService,
-    private usuarioService: UsuarioService
+    private usuarioService: UsuarioService,
+    private cdr: ChangeDetectorRef
   ) {
     effect(() => {
       const data = this.ofertasDashboard();
       if (data.length > 0) {
-        setTimeout(() => this.renderCharts(), 100);
+        setTimeout(() => {
+          this.renderCharts(),
+          this.cdr.detectChanges();
+        }, 100);
       }
     });
   }
@@ -192,6 +202,10 @@ export class HistorialTest {
     this.intentoSeleccionado.set(null);
     this.recomendacionInfo.set(null);
     this.detallesCarreras.set([]);
+    this.cdr.detectChanges(); 
+    setTimeout(() => {
+      this.renderCharts();
+    }, 100);
   }
 
   async descargarPDF() {

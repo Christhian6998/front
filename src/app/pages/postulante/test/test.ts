@@ -34,6 +34,10 @@ export class TestComponent {
 
   isProcessing: boolean = false;
 
+  criteriosUsados: Set<number> = new Set();
+  criteriosPendientes: number[] = [];
+  todosLosCriterios: number[] = [];
+
   constructor(
     private testService: TestService,
     private carreraService: CarreraService,
@@ -47,6 +51,7 @@ export class TestComponent {
       this.carrerasLista = res;
       this.forceUpdate();
     });
+    
   }
 
   forceUpdate() {
@@ -56,6 +61,8 @@ export class TestComponent {
   async iniciarTest() {
     this.faseActual = 1;
     this.criteriosActivos = []; 
+    this.criteriosUsados.clear();
+    this.criteriosPendientes = [];
     this.todasLasRespuestas = [];
     this.cargarPreguntas();
   }
@@ -103,46 +110,100 @@ export class TestComponent {
 
   // test.component.ts
   async procesarCriteriosParaSiguienteFase() {
-    let nombresCriterios = new Set<string>();
+    let nombresSeleccionados = new Set<string>();
+    let nombresTodosFase = new Set<string>(); 
+    let respuestasYes = 0;
 
+    // 1. Extraer nombres separando por '_' (todos los vistos y los marcados con SI)
     for (const p of this.preguntasFaseActual) {
       const ans = this.respuestasTemporales[p.idPregunta!];
       if (!ans) continue;
 
       const puntaje = Number(ans.split('|')[1]);
+      const isYes = puntaje > 0;
+      if (isYes) respuestasYes++;
+
+      const areas = p.area ? p.area.split('_') : (p.criterio?.nombre ? [p.criterio.nombre] : []);
       
-      // Solo tomamos criterios si la respuesta dio puntos
-      if (puntaje > 0) {
-        if (p.area) {
-          p.area.split('_').forEach(a => nombresCriterios.add(a));
-        } else if (p.criterio) {
-          nombresCriterios.add(p.criterio.nombre!);
+      areas.forEach(nombre => {
+        if (nombre) {
+          nombresTodosFase.add(nombre);
+          if (isYes) nombresSeleccionados.add(nombre);
         }
-      }
+      });
     }
 
-    const nuevosCriteriosIds: number[] = [];
-    for (const nombre of Array.from(nombresCriterios)) {
+    // 2. Fetch de IDs y alimentar el array global
+    let nuevosCriterios = new Set<number>();
+    let poolCriteriosFase = new Set<number>(); 
+
+    for (const nombre of Array.from(nombresTodosFase)) {
       try {
         const id = await firstValueFrom(this.testService.buscarIdPorNombre(nombre));
-        if (id) nuevosCriteriosIds.push(id as number);
+        if (id) {
+          const numId = Number(id);
+          poolCriteriosFase.add(numId);
+          
+          if (nombresSeleccionados.has(nombre)) {
+            nuevosCriterios.add(numId);
+          }
+          
+          // Construir todosLosCriterios on the fly (sobre la marcha)
+          if (!this.todosLosCriterios.includes(numId)) {
+            this.todosLosCriterios.push(numId);
+          }
+        }
       } catch (e) {
         console.warn(`Criterio ${nombre} no encontrado`);
       }
     }
 
-    // Pasamos TODOS los criterios obtenidos, sin límites
-    this.criteriosActivos = nuevosCriteriosIds; 
+    // 3. Evaluar All YES o All NO
+    const totalPreguntas = this.preguntasFaseActual.length;
+    if (respuestasYes === totalPreguntas || respuestasYes === 0) {
+      // Usar todos los recopilados como fallback (plan de contingencia)
+      this.todosLosCriterios.forEach(c => nuevosCriterios.add(c));
+    }
+
+    // 4. Clean up (limpiar) usados y unir con pendientes
+    let combinados = [...new Set([...this.criteriosPendientes, ...nuevosCriterios])];
+    combinados = combinados.filter(c => !this.criteriosUsados.has(c));
+
+    // 5. Rellenar si hay menos de 10
+    if (combinados.length < 10) {
+      const faltantes = this.todosLosCriterios
+        .filter(c => !this.criteriosUsados.has(c) && !combinados.includes(c))
+        .sort(() => 0.5 - Math.random()) 
+        .slice(0, 10 - combinados.length);
+      
+      combinados = [...combinados, ...faltantes];
+    }
+
+    // 6. Setear activos y mandar al backlog (lista de pendientes)
+    if (combinados.length < 10) {
+      const repescados = Array.from(this.criteriosUsados)
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 10 - combinados.length);
+      combinados = [...combinados, ...repescados];
+    }
+    this.criteriosActivos = combinados.slice(0, 10);
+    this.criteriosPendientes = combinados.slice(10);
+
+    this.criteriosActivos.forEach(c => this.criteriosUsados.add(c));
   }
 
   async enviarTestBackend() {
+    const c1 = this.sabeCarrera ? this.carrera1 : 0;
+    const c2 = this.sabeCarrera ? this.carrera2 : 0;
+    const c3 = this.sabeCarrera ? this.carrera3 : 0;
+
     const dto: TestRequestDTO = {
       idUsuario: this.userId() as number,
       respuestas: this.todasLasRespuestas
     };
 
     try {
-      const res = await firstValueFrom(this.testService.guardarTest(dto, this.carrera1, this.carrera2, this.carrera3));
+      const res = await firstValueFrom(this.testService.guardarTest(dto, c1,c2,c3));
       await Swal.fire({
         title: '¡Test Finalizado!',
         text: 'Tu reporte vocacional ya está listo. (Your report is ready)',
@@ -167,5 +228,13 @@ export class TestComponent {
     );
   }
 
+  onSabeCarreraChange(valor: boolean) {
+    if (valor === false) {
+    this.carrera1 = 0;
+    this.carrera2 = 0;
+    this.carrera3 = 0;
+  }
+  this.forceUpdate();
+  }
   
 }

@@ -9,10 +9,10 @@
       <div class="mt-5 mb-4">
         <h5 class="mb-3">¿Ya tienes una carrera en mente?</h5>
         <div class="btn-group w-100" role="group">
-          <input type="radio" class="btn-check" name="sabe" id="siSabe" [value]="true" [(ngModel)]="sabeCarrera">
+          <input type="radio" class="btn-check" name="sabe" id="siSabe" [value]="true" [(ngModel)]="sabeCarrera" (ngModelChange)="onSabeCarreraChange($event)">
           <label class="btn btn-outline-primary py-3" for="siSabe">¡Sí, ya sé!</label>
 
-          <input type="radio" class="btn-check" name="sabe" id="noSabe" [value]="false" [(ngModel)]="sabeCarrera">
+          <input type="radio" class="btn-check" name="sabe" id="noSabe" [value]="false" [(ngModel)]="sabeCarrera" (ngModelChange)="onSabeCarreraChange($event)">
           <label class="btn btn-outline-primary py-3" for="noSabe">Aún no estoy seguro</label>
         </div>
       </div>
