@@ -3,14 +3,33 @@
     <h2 class="fw-bold mb-4 text-primary">Localiza tu futura sede</h2>
     
     <div class="row g-3">
-      <div class="col-md-6">
+      <div class="col-md-6 position-relative">
         <label class="form-label fw-bold">1. Selecciona Universidad o Instituto</label>
-        <select class="form-select rounded-pill" [(ngModel)]="entidadSeleccionada" (change)="onEntidadChange()">
-          <option value="">Selecciona una entidad...</option>
-          <option *ngFor="let i of instituciones" [value]="i.idInstitucion">
-            {{ i.nombre }}
-          </option>
-        </select>
+        
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0 rounded-start-pill">
+            <i class="bi bi-search text-muted"></i>
+          </span>
+          <input type="text" 
+                class="form-control border-start-0 rounded-end-pill" 
+                placeholder="Buscar institución..."
+                [(ngModel)]="searchTerm"
+                (input)="onSearchInput()"
+                (focus)="isDropdownOpen = true">
+        </div>
+
+        <ul class="dropdown-menu w-100 shadow-sm mt-1 overflow-auto" 
+            [class.show]="isDropdownOpen && filteredInstituciones.length > 0"
+            style="max-height: 250px; border-radius: 15px;">
+          <li *ngFor="let i of filteredInstituciones">
+            <button class="dropdown-item py-2" type="button" (click)="selectInstitucion(i)">
+              {{ i.nombre }}
+            </button>
+          </li>
+          <li *ngIf="filteredInstituciones.length === 0">
+            <span class="dropdown-item-text text-muted small">No match found (no se encontraron coincidencias)</span>
+          </li>
+        </ul>
       </div>
 
       <div class="col-md-6">

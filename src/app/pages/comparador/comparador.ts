@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CarreraService } from '../../services/carrera';
 import { OfertaCarreraService } from '../../services/oferta-carrera';
+import { Carrera } from '../../models/Carrera';
 
 @Component({
   selector: 'app-comparador',
@@ -11,7 +12,7 @@ import { OfertaCarreraService } from '../../services/oferta-carrera';
   styleUrl: './comparador.css',
 })
 export class Comparador {
-  carreras: any[] = [];
+  carreras: Carrera[] = [];
   carrerasAfines: any[] = []; // Carreras de la misma área (same area)
   
   carreraBaseSeleccionada: any = null;
@@ -22,6 +23,11 @@ export class Comparador {
   
   ofertaIzquierda: any = null;
   ofertaDerecha: any = null;
+
+  searchTermBase: string = '';
+  searchTermAfin: string = '';
+  isDropdownOpenBase: boolean = false;
+  isDropdownOpenAfin: boolean = false;
 
   constructor(
     private carreraService: CarreraService,
@@ -37,6 +43,7 @@ export class Comparador {
   }
 
   onCarreraBaseChange() {
+    this.searchTermAfin = '';
     this.ofertaIzquierda = null;
     this.carreraAfinSeleccionada = null;
     this.ofertaDerecha = null;
@@ -87,4 +94,47 @@ export class Comparador {
   refrescarPantalla() {
     this.cdr.detectChanges();
   }
+
+  get carrerasFiltradas() {
+    return this.carreras.filter(c => 
+      c.nombre.toLowerCase().includes(this.searchTermBase.toLowerCase())
+    );
+  }
+
+  get carrerasAfinesFiltradas() {
+    return this.carrerasAfines.filter(c => 
+      c.nombre.toLowerCase().includes(this.searchTermAfin.toLowerCase())
+    );
+  }
+
+  selectCarreraBase(c: Carrera) {
+    this.carreraBaseSeleccionada = c;
+    this.searchTermBase = c.nombre;
+    this.isDropdownOpenBase = false;
+    this.onCarreraBaseChange();
+  }
+
+  selectCarreraAfin(c: any) {
+    this.carreraAfinSeleccionada = c;
+    this.searchTermAfin = c.nombre;
+    this.isDropdownOpenAfin = false;
+    this.onCarreraAfinChange();
+  }
+
+  onSearchBaseInput() {
+    this.isDropdownOpenBase = true;
+    if (!this.searchTermBase) {
+      this.carreraBaseSeleccionada = null;
+      this.onCarreraBaseChange();
+    }
+  }
+
+  onSearchAfinInput() {
+    this.isDropdownOpenAfin = true;
+    if (!this.searchTermAfin) {
+      this.carreraAfinSeleccionada = null;
+      this.onCarreraAfinChange();
+    }
+  }
+
 }

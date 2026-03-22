@@ -21,7 +21,7 @@ export class TestService {
   }
 
   // Guardar el test y obtener recomendaciones
-  guardarTest(dto: TestRequestDTO, c1: number = 0, c2: number = 0, c3: number = 0) {
+  guardarTest(dto: TestRequestDTO, c1: number, c2: number, c3: number) {
     return this.http.post<RecomendacionCarrera[]>(
       this.url + "/guardar?idC1=" + c1 + "&idC2=" + c2 + "&idC3=" + c3, 
       dto

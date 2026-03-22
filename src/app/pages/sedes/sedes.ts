@@ -29,13 +29,15 @@ export class Sedes {
   map!: L.Map;
   userMarker?: L.Marker;
   circleUbicacion?: L.Circle;
-  rutaCercana?: L.Polyline; // Para dibujar la línea a la sede
+  rutaCercana?: L.Polyline;
   mensajeResultado: string = '';
   direccionUsuario: string = '';
   entidadSeleccionada: string = '';
   instituciones: any[] = [];
   sedes: any[] = [];
   filteredSedes: any[] = [];
+  searchTerm: string = ''; 
+  isDropdownOpen: boolean = false;
 
   // Grupo para limpiar marcadores de sedes fácilmente
   private sedesLayer = L.layerGroup();
@@ -73,12 +75,11 @@ export class Sedes {
       return;
     }
 
-    // Mostramos un pequeño loading silencioso
     this.sedeService
       .listarPorInstitucion(Number(this.entidadSeleccionada))
       .subscribe({
         next: (data: any[]) => {
-          // Mapeo robusto: Verificamos si existe s.institucion para evitar errores
+          //  Verificamos si existe s.institucion para evitar errores
           this.filteredSedes = data.map(s => ({
             nombre: s.institucion ? s.institucion.nombre : 'Institución',
             sede: s.nombre,
@@ -178,7 +179,7 @@ export class Sedes {
   procesarUbicacionUsuario(lat: number, lng: number) {
     const userLatLng = L.latLng(lat, lng);
     
-    // 1. Limpieza de capas
+    //  Limpieza de capas
     this.rutaLayer.clearLayers();
     if (this.circleUbicacion) this.map.removeLayer(this.circleUbicacion);
     if (this.userMarker) this.map.removeLayer(this.userMarker);
@@ -197,15 +198,11 @@ export class Sedes {
 
       const distanciaKm = (distMin / 1000).toFixed(2);
       
-      // 2. ACTUALIZACIÓN CRÍTICA
-      // Asignamos el mensaje
       this.mensajeResultado = 'La sede de "'+masCercana.nombre+'" más cercana a ti es '+masCercana.sede+' ubicada en '+masCercana.direccion+'. A unos '+distanciaKm+' km de distancia aproximadamente.';
       
-      // 3. FORZAR RENDERIZADO
-      // Esto obliga a Angular a mostrar el mensaje nuevo AHORA MISMO
-      this.cdr.detectChanges(); 
+       this.cdr.detectChanges(); 
 
-      // 4. Dibujar en el mapa
+      //  Dibujar en el mapa
       const puntosRuta = [userLatLng, L.latLng(masCercana.lat, masCercana.lng)];
       L.polyline(puntosRuta, {
         color: '#6366f1',
@@ -243,6 +240,27 @@ export class Sedes {
           Swal.fire('Error de GPS', 'Asegúrate de tener el GPS activo.', 'warning');
         }
       );
+    }
+  }
+  get filteredInstituciones() {
+    if (!this.searchTerm) return this.instituciones;
+    return this.instituciones.filter(i => 
+      i.nombre.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+  }
+
+  selectInstitucion(inst: any) {
+    this.entidadSeleccionada = inst.idInstitucion.toString();
+    this.searchTerm = inst.nombre;
+    this.isDropdownOpen = false;
+    this.onEntidadChange();
+  }
+
+  onSearchInput() {
+    this.isDropdownOpen = true;
+    if (!this.searchTerm) {
+      this.entidadSeleccionada = '';
+      this.onEntidadChange();
     }
   }
 }
