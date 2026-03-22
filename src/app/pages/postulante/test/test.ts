@@ -30,8 +30,6 @@ export class TestComponent {
   todasLasRespuestas: RespuestaItemDTO[] = [];
   criteriosActivos: number[] = [];
 
-  userId = computed(() => this.authService.currentUser()?.id || null);
-
   isProcessing: boolean = false;
 
   criteriosUsados: Set<number> = new Set();
@@ -198,7 +196,7 @@ export class TestComponent {
     const c3 = this.sabeCarrera ? this.carrera3 : 0;
 
     const dto: TestRequestDTO = {
-      idUsuario: this.userId() as number,
+      idUsuario: Number(this.authService.userId()),
       respuestas: this.todasLasRespuestas
     };
 

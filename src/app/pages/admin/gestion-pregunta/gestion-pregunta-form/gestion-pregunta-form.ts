@@ -24,7 +24,7 @@ export class GestionPreguntaForm {
   
   areasPregunta = [
     { value: 'RAZONAMIENTO_ANALITICO', label: 'Lógico-Analítica' },
-    { value: 'MATEMATICA_CIENTIFICA', label: 'Matemática-Científica' },
+    { value: 'MATEMATICO_CIENTIFICO', label: 'Matemática-Científica' },
     { value: 'TECNOLOGICO_PROGRAMACION', label: 'Tecnológica' },
     { value: 'CREATIVO_ARTISTICO', label: 'Creativa-Visual' },
     { value: 'PRACTICO_MANUAL_FISICO', label: 'Práctica-Manual' },
