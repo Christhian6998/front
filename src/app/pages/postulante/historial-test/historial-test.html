@@ -200,10 +200,21 @@
           </div>
           <p class="fs-6 text-secondary mb-4">{{item.carrera.descripcion}}</p>
           <div *ngFor="let ofe of item.ofertasFiltradas" class="list-group-item px-0 border-0 mb-3">
-            <p class="mb-0 text-secondary"><strong class="text-dark fs-5">{{ofe.institucion.nombre}} </strong> Pensión S/{{ofe.costoPension}}...</p>
+            <p class="mb-0 text-secondary"><strong class="text-dark fs-5">{{ofe.institucion.nombre}} </strong>Ofrece las modalidades {{ofe.modalidad}}. con una duración de {{ofe.duracion}} años y un costo de pensión de aproximadamente S/.{{ofe.costoPension}}</p>
           </div>
           <hr class="mt-5 opacity-25">
-        </div>
+        </div><div class="text-center mt-5 mb-2">
+      <p class="text-secondary fw-light italic" style="font-size: 1.1rem; letter-spacing: 0.5px;">
+        ¿Aún tienes dudas sobre tus resultados? 
+           Contacta a nuestro psicólogo vocacional aliado con un solo click 
+        <a (click)="contactarSocio()" 
+           class="text-primary fw-bold text-decoration-underline" 
+           style="cursor: pointer; transition: opacity 0.3s;">
+           aqui
+        </a>
+      </p>
+      <div class="mt-4 mx-auto border-bottom" style="width: 50px; opacity: 0.2;"></div>
+    </div>
       </div>
     </div>
   </div>
