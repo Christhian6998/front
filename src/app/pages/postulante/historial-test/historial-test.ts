@@ -29,6 +29,18 @@ export class HistorialTest {
   filtroModalidad = signal<string>('Todas');
   filtroPresupuesto = signal<number>(99999);
   allDetallesCompletos = signal<any[]>([]);
+
+  vistaActiva = signal<'todo' | 'dashboard' | 'tarjetas'>('todo');
+  cambiarVista(nuevaVista: 'todo' | 'dashboard' | 'tarjetas') {
+    this.vistaActiva.set(nuevaVista);
+    
+    if (nuevaVista !== 'tarjetas') {
+      setTimeout(() => {
+        this.renderCharts();
+        this.cdr.detectChanges();
+      }, 100);
+    }
+  }
     /* Daschboard personalizados */
   todasLasOfertas = computed(() => {
     const uniqueMap = new Map<string, any>();
