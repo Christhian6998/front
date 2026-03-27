@@ -1,5 +1,6 @@
 // Lo que enviamos al Backend
 export interface ChatRequest {
+  user_id: string
   mensaje: string
 }
 
