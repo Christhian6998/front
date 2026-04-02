@@ -23,7 +23,7 @@
         <thead class="table-light">
           <tr>
             <th>Institución</th>
-            <th>Áreas</th>
+            <th>Carreras</th>
             <th>Sedes</th>
             <th>Modalidades</th>
             <th>Prom. Matrícula</th>
@@ -34,7 +34,7 @@
         <tbody>
           <tr *ngFor="let item of datosPaginados">
             <td class="fw-bold text-primary">{{ item.nombreInstitucion }}</td>
-            <td><span class="text-truncate d-inline-block" style="max-width: 150px;">{{ item.areas }}</span></td>
+            <td><span class="badge rounded-pill bg-primary shadow-sm" style="min-width: 45px;">{{ item.cantidadCarreras }}</span></td>
             <td><span class="badge rounded-pill bg-info text-dark">{{ item.cantidadSedes }}</span></td>
             <td>{{ item.modalidades }}</td>
             <td class="fw-semibold">S/ {{ item.promedioMatricula }}</td>

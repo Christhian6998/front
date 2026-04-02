@@ -64,7 +64,6 @@ export class GestionOferta {
           );
 
           // Extraer datos de carrera
-          const areas = [...new Set(misOfertas.map(o => o.carrera?.area))];
           const modalidadesRaw = misOfertas
             .map(o => o.modalidad) // Traemos los strings: ["PRESENCIAL, VIRTUAL", "PRESENCIAL"]
             .filter(m => !!m)     // Quitamos nulos
@@ -84,7 +83,7 @@ export class GestionOferta {
             nombreInstitucion: inst.nombre,
             estadoI: inst.estado,
             tipo: inst.tipo,
-            areas: misOfertas.length > 0 ? areas.join(', ') : 'Sin oferta',
+            cantidadCarreras: misOfertas.length,
             modalidades: misOfertas.length > 0 ? modalidadesUnicas.join(', ') : 'N/A',
             cantidadSedes: misSedes.length,
             promedioMatricula: (totalMatricula / n).toFixed(2),
@@ -118,7 +117,7 @@ export class GestionOferta {
     this.listadoFiltrado = this.listado.filter(item =>
 
       item.nombreInstitucion.toLowerCase().includes(texto) ||
-      item.areas.toLowerCase().includes(texto) ||
+      item.cantidadCarreras.toString().includes(texto) ||
       item.modalidades.toLowerCase().includes(texto) ||
       item.promedioMatricula.toString().includes(texto) ||
       item.promedioPension.toString().includes(texto) ||
